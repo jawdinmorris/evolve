@@ -2,7 +2,7 @@ let data = {
   energy: 0,
   creatures: [],
   creatureCount: 0,
-  maxCreatures: 1
+  maxCreatures: 3
 };
 
 let state = {
@@ -204,12 +204,20 @@ function clickedPurchase(unit) {
     energy >= 25 &&
     data.creatureCount < data.maxCreatures
   ) {
-    creatures.push({ name: names[Math.floor(Math.random() * names.length)] });
+    creatures.push({
+      name: names[Math.floor(Math.random() * names.length)],
+      attack: Math.floor(Math.random() * 10),
+      defence: Math.floor(Math.random() * 10)
+    });
     energy -= 25;
     data.creatureCount++;
     var li = document.createElement("li");
     li.appendChild(
-      document.createTextNode(` ${creatures[creatures.length - 1].name} `)
+      document.createTextNode(
+        ` ${creatures[creatures.length - 1].name} - Attack: ${
+          creatures[creatures.length - 1].attack
+        } | Defence: ${creatures[creatures.length - 1].defence} `
+      )
     );
     creaturesList.appendChild(li);
 
