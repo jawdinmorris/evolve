@@ -121,6 +121,8 @@ var buyCreature = document.getElementById("buyCreature");
 var creaturesLabel = document.getElementById("creaturesLabel");
 var creaturesList = document.getElementById("creaturesList");
 
+var logArea = document.getElementById("logArea");
+
 var gatherEnergyTimer;
 
 function gatherEnergy() {
@@ -140,12 +142,16 @@ function gatherEnergy() {
 
 function checkAvailableUnlocks(e) {
   switch (e) {
-    case 3:
-      purchasePanel.classList.remove("hidden");
-      break;
     case 5:
+      purchasePanel.classList.remove("hidden");
+      logArea.innerHTML =
+        "<p> You feel your knowledge regaining. </p><br>" + logArea.innerHTML;
+      break;
+    case 15:
       buyCreature.classList.remove("hidden");
-      console.log("Should see buy creature button");
+      logArea.innerHTML =
+        "<p> You remember you used to have minions. </p><br>" +
+        logArea.innerHTML;
       break;
     default:
       break;
@@ -153,9 +159,9 @@ function checkAvailableUnlocks(e) {
 }
 
 function clickedPurchase(unit) {
-  if (unit == "creature" && energy >= 10) {
+  if (unit == "creature" && energy >= 25) {
     creatures.push({ name: names[Math.floor(Math.random() * names.length)] });
-    energy -= 10;
+    energy -= 25;
     data.creatureCount++;
     var li = document.createElement("li");
     li.appendChild(
