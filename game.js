@@ -1,13 +1,19 @@
 let data = {
   energy: 0,
   creatures: [],
-  creatureCount: 0
+  creatureCount: 0,
+  maxCreatures: 1
 };
 
 let state = {
   gatheringEnergy: false
 };
 
+let storyUnlocks = {
+  five: false,
+  fifteen: false,
+  creature: false
+};
 let { energy, creatures } = data;
 const names = [
   "Mara",
@@ -132,7 +138,10 @@ var gatherEnergyTimer;
 //Send first message (Not a good solution)
 logArea.innerHTML =
   new Date().toLocaleTimeString() +
-  " <p> You wake up after being knocked out cold. You don't remember much. Except now you must gather energy from the universe once more.</p>";
+  " <p class = 'flashit'> You wake up after being knocked out cold. You don't remember much. Except now you must gather energy from the universe once more.</p>";
+setTimeout(function() {
+  document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+}, 3000);
 
 //Clicked Gather Energy Button
 function gatherEnergy() {
@@ -154,18 +163,34 @@ function gatherEnergy() {
 function checkAvailableUnlocks(e) {
   switch (e) {
     case 5:
-      purchasePanel.classList.remove("hidden");
-      logArea.innerHTML =
-        new Date().toLocaleTimeString() +
-        "<p> You feel your knowledge regaining. </p><br>" +
-        logArea.innerHTML;
+      if (storyUnlocks.five == false) {
+        purchasePanel.classList.remove("hidden");
+        logArea.innerHTML =
+          new Date().toLocaleTimeString() +
+          "<p class = 'flashit'> You feel your knowledge regaining. </p><br>" +
+          logArea.innerHTML;
+        storyUnlocks.five = true;
+        setTimeout(function() {
+          document
+            .getElementsByClassName("flashit")[0]
+            .classList.remove("flashit");
+        }, 3000);
+      }
       break;
     case 15:
-      buyCreature.classList.remove("hidden");
-      logArea.innerHTML =
-        new Date().toLocaleTimeString() +
-        "<p> You remember you used to have minions. </p><br>" +
-        logArea.innerHTML;
+      if (storyUnlocks.fifteen == false) {
+        buyCreature.classList.remove("hidden");
+        logArea.innerHTML =
+          new Date().toLocaleTimeString() +
+          "<p class = 'flashit'> You remember you used to have minions. </p><br>" +
+          logArea.innerHTML;
+        storyUnlocks.fifteen = true;
+        setTimeout(function() {
+          document
+            .getElementsByClassName("flashit")[0]
+            .classList.remove("flashit");
+        }, 3000);
+      }
       break;
     default:
       break;
@@ -174,7 +199,11 @@ function checkAvailableUnlocks(e) {
 
 //Trying to purchase something
 function clickedPurchase(unit) {
-  if (unit == "creature" && energy >= 25) {
+  if (
+    unit == "creature" &&
+    energy >= 25 &&
+    data.creatureCount < data.maxCreatures
+  ) {
     creatures.push({ name: names[Math.floor(Math.random() * names.length)] });
     energy -= 25;
     data.creatureCount++;
@@ -183,6 +212,21 @@ function clickedPurchase(unit) {
       document.createTextNode(` ${creatures[creatures.length - 1].name} `)
     );
     creaturesList.appendChild(li);
+
+    if (storyUnlocks.creature == false) {
+      purchasePanel.classList.remove("hidden");
+      logArea.innerHTML =
+        new Date().toLocaleTimeString() +
+        "<p class='flashit'> You kind of smoosh the energy from the universe together. It creates a grotesque creature you feel immediate sympathy for. </p><br>" +
+        logArea.innerHTML;
+      setTimeout(function() {
+        document
+          .getElementsByClassName("flashit")[0]
+          .classList.remove("flashit");
+      }, 3000);
+      storyUnlocks.creature = true;
+    }
+
     updateCounts();
   }
 }
@@ -190,5 +234,7 @@ function clickedPurchase(unit) {
 //Easily called update counts
 function updateCounts() {
   energyLabel.innerText = `Energy: ${energy}`;
-  creaturesLabel.innerText = `Creatures: ${data.creatureCount}`;
+  creaturesLabel.innerText = `Creatures: ${data.creatureCount} / ${
+    data.maxCreatures
+  }`;
 }
