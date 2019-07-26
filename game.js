@@ -112,19 +112,29 @@ const names = [
   "Damon"
 ];
 
+//Energy DOM
 var energyLabel = document.getElementById("energyLabel");
 var energyButton = document.getElementById("energyButton");
 
+//Purchasing DOM
 var purchasePanel = document.getElementById("purchasePanel");
 var buyCreature = document.getElementById("buyCreature");
 
+//Creatures DOM
 var creaturesLabel = document.getElementById("creaturesLabel");
 var creaturesList = document.getElementById("creaturesList");
 
+//Log DOM
 var logArea = document.getElementById("logArea");
 
 var gatherEnergyTimer;
 
+//Send first message (Not a good solution)
+logArea.innerHTML =
+  new Date().toLocaleTimeString() +
+  " <p> You wake up after being knocked out cold. You don't remember much. Except now you must gather energy from the universe once more.</p>";
+
+//Clicked Gather Energy Button
 function gatherEnergy() {
   state.gatheringEnergy = !state.gatheringEnergy;
   if (state.gatheringEnergy == true) {
@@ -140,16 +150,20 @@ function gatherEnergy() {
   }
 }
 
+//Check Available Unlocks (Called when Energy is being gathered)
 function checkAvailableUnlocks(e) {
   switch (e) {
     case 5:
       purchasePanel.classList.remove("hidden");
       logArea.innerHTML =
-        "<p> You feel your knowledge regaining. </p><br>" + logArea.innerHTML;
+        new Date().toLocaleTimeString() +
+        "<p> You feel your knowledge regaining. </p><br>" +
+        logArea.innerHTML;
       break;
     case 15:
       buyCreature.classList.remove("hidden");
       logArea.innerHTML =
+        new Date().toLocaleTimeString() +
         "<p> You remember you used to have minions. </p><br>" +
         logArea.innerHTML;
       break;
@@ -158,6 +172,7 @@ function checkAvailableUnlocks(e) {
   }
 }
 
+//Trying to purchase something
 function clickedPurchase(unit) {
   if (unit == "creature" && energy >= 25) {
     creatures.push({ name: names[Math.floor(Math.random() * names.length)] });
@@ -172,6 +187,7 @@ function clickedPurchase(unit) {
   }
 }
 
+//Easily called update counts
 function updateCounts() {
   energyLabel.innerText = `Energy: ${energy}`;
   creaturesLabel.innerText = `Creatures: ${data.creatureCount}`;
