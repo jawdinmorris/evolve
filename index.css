@@ -1,0 +1,8 @@
+div {
+  border-width: 1px;
+  border-color: red;
+}
+
+.hidden {
+  visibility: hidden;
+}

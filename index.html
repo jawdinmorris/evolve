@@ -4,15 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="index.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"
     />
-    <link rel="stylesheet" href="index.css" />
     <script
       defer
       src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"
     ></script>
+
     <title>Evolve</title>
   </head>
   <body>
@@ -22,15 +23,57 @@
         <div class="rows">
           <div class="columns">
             <div class="column">
-              <div class="row">Resources</div>
+              <div class="row">
+                <div class="rows">
+                  <div class="columns">
+                    <div class="column">
+                      <div class="row box has-text-centered">
+                        <div id="energyLabel">Energy: 0</div>
+                        <button
+                          onclick="gatherEnergy()"
+                          class="button"
+                          id="energyButton"
+                        >
+                          Gather Energy
+                        </button>
+                      </div>
+                    </div>
+                    <div class="column">
+                      <div class="row box">Gold: 0</div>
+                    </div>
+                  </div>
+                  <div class="columns">
+                    <div class="column">
+                      <div class="row box">Null</div>
+                    </div>
+                    <div class="column">
+                      <div class="row box">Null</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="column">
-              <div class="row">Creatures</div>
+              <div class="row">
+                <div id="creaturesLabel">Creatures (0)</div>
+                <ul id="creaturesList"></ul>
+              </div>
             </div>
           </div>
           <div class="columns">
             <div class="column">
-              <div class="row">Purchases</div>
+              <div class="row hidden" id="purchasePanel">
+                <p>Purchase</p>
+                <div class="list is-hoverable">
+                  <button
+                    onclick="clickedPurchase('creature')"
+                    class="button list-item hidden"
+                    id="buyCreature"
+                  >
+                    Buy Creature: 10 Energy
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="column">
               <div class="row">Null</div>
@@ -40,4 +83,6 @@
       </div>
     </section>
   </body>
+
+  <script src="game.js" type="text/javascript"></script>
 </html>
