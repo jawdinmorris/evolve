@@ -19,10 +19,11 @@ let battleStats = {
   minAttack: 1,
   maxAttack: 3,
   minDefence: 1,
-  maxDefence: 3
+  maxDefence: 3,
+  battling: false
 };
 let { energy, creatures } = data;
-let { minAttack, maxAttack, minDefence, maxDefence } = battleStats;
+let { minAttack, maxAttack, minDefence, maxDefence, battling } = battleStats;
 let id = 0;
 const names = [
   "Mara",
@@ -146,6 +147,7 @@ var battleArea = document.getElementById("battleArea");
 var logArea = document.getElementById("logArea");
 
 var gatherEnergyTimer;
+var batlleInterval;
 
 //Send first message (Not a good solution)
 logArea.innerHTML =
@@ -269,10 +271,29 @@ function updateCounts() {
 //Battle loop
 function startedBattleLoop(e) {
   creatureObject = creatures[e];
-  battleArea.innerHTML =
-    new Date().toLocaleTimeString() +
-    `<p class = 'flashit'> You send out ${
-      creatureObject.name
-    } to begin exploring the local area.</p><br>` +
-    battleArea.innerHTML;
+  if (battling == false) {
+    battleArea.innerHTML =
+      "<p id='timer'>10 seconds..<p>" +
+      new Date().toLocaleTimeString() +
+      ` <p class = 'flashit'> You send out ${
+        creatureObject.name
+      } to begin exploring the local area.</p><br>` +
+      battleArea.innerHTML;
+    setTimeout(function() {
+      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+    }, 3000);
+    battling = true;
+    var timer = document.getElementById("timer");
+    var time = 10;
+
+    battleInterval = setInterval(function() {
+      console.log("Updating timer");
+      time--;
+      timer.innerText = `${time} seconds..`;
+      if (time < 0.001) {
+        clearInterval(battleInterval);
+      }
+    }, 1000);
+    timer.removeAttribute("id");
+  }
 }
