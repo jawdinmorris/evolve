@@ -14,7 +14,15 @@ let storyUnlocks = {
   fifteen: false,
   creature: false
 };
+
+let battleStats = {
+  minAttack: 1,
+  maxAttack: 3,
+  minDefence: 1,
+  maxDefence: 3
+};
 let { energy, creatures } = data;
+let { minAttack, maxAttack, minDefence, maxDefence } = battleStats;
 let id = 0;
 const names = [
   "Mara",
@@ -208,10 +216,11 @@ function clickedPurchase(unit) {
     creatures.push({
       id: id,
       name: names[Math.floor(Math.random() * names.length)],
-      attack: Math.floor(Math.random() * 10),
-      defence: Math.floor(Math.random() * 10)
+      attack: Math.floor(Math.random() * (maxAttack - minAttack) + minAttack),
+      defence: Math.floor(
+        Math.random() * (maxDefence - minDefence) + minDefence
+      )
     });
-
     id++;
     energy -= 25;
     data.creatureCount++;
