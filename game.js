@@ -139,6 +139,9 @@ var buyCreature = document.getElementById("buyCreature");
 var creaturesLabel = document.getElementById("creaturesLabel");
 var creaturesList = document.getElementById("creaturesList");
 
+//Battle DOM
+var battleArea = document.getElementById("battleArea");
+
 //Log DOM
 var logArea = document.getElementById("logArea");
 
@@ -221,7 +224,6 @@ function clickedPurchase(unit) {
         Math.random() * (maxDefence - minDefence) + minDefence
       )
     });
-    id++;
     energy -= 25;
     data.creatureCount++;
     var li = document.createElement("li");
@@ -234,12 +236,10 @@ function clickedPurchase(unit) {
       )
     );
     li.appendChild(btn);
-    btn.classList.add(`class="battle-button"`);
-    btn.innerText = "Send to battle";
-    btn.id = `creatureComponentButton${id}`;
+    btn.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedBattleLoop(${id})" > Send to Battle </button>`;
+
     li.id = `creatureComponent${id}`;
     creaturesList.appendChild(li);
-
     if (storyUnlocks.creature == false) {
       purchasePanel.classList.remove("hidden");
       logArea.innerHTML =
@@ -253,7 +253,7 @@ function clickedPurchase(unit) {
       }, 3000);
       storyUnlocks.creature = true;
     }
-
+    id++;
     updateCounts();
   }
 }
@@ -264,4 +264,15 @@ function updateCounts() {
   creaturesLabel.innerText = `Creatures: ${data.creatureCount} / ${
     data.maxCreatures
   }`;
+}
+
+//Battle loop
+function startedBattleLoop(e) {
+  creatureObject = creatures[e];
+  battleArea.innerHTML =
+    new Date().toLocaleTimeString() +
+    `<p class = 'flashit'> You send out ${
+      creatureObject.name
+    } to begin exploring the local area.</p><br>` +
+    battleArea.innerHTML;
 }
