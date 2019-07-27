@@ -15,6 +15,7 @@ let storyUnlocks = {
   creature: false
 };
 let { energy, creatures } = data;
+let id = 0;
 const names = [
   "Mara",
   "Shad",
@@ -205,13 +206,17 @@ function clickedPurchase(unit) {
     data.creatureCount < data.maxCreatures
   ) {
     creatures.push({
+      id: id,
       name: names[Math.floor(Math.random() * names.length)],
       attack: Math.floor(Math.random() * 10),
       defence: Math.floor(Math.random() * 10)
     });
+
+    id++;
     energy -= 25;
     data.creatureCount++;
     var li = document.createElement("li");
+    var btn = document.createElement("BUTTON");
     li.appendChild(
       document.createTextNode(
         ` ${creatures[creatures.length - 1].name} - Attack: ${
@@ -219,6 +224,11 @@ function clickedPurchase(unit) {
         } | Defence: ${creatures[creatures.length - 1].defence} `
       )
     );
+    li.appendChild(btn);
+    btn.classList.add(`class="battle-button"`);
+    btn.innerText = "Send to battle";
+    btn.id = `creatureComponentButton${id}`;
+    li.id = `creatureComponent${id}`;
     creaturesList.appendChild(li);
 
     if (storyUnlocks.creature == false) {
