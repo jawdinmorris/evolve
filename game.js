@@ -14,7 +14,17 @@ let storyUnlocks = {
   fifteen: false,
   creature: false
 };
+
+let battleStats = {
+  minAttack: 1,
+  maxAttack: 3,
+  minDefence: 1,
+  maxDefence: 3,
+  battling: false
+};
 let { energy, creatures } = data;
+let { minAttack, maxAttack, minDefence, maxDefence, battling } = battleStats;
+let id = 0;
 const names = [
   "Mara",
   "Shad",
@@ -130,10 +140,14 @@ var buyCreature = document.getElementById("buyCreature");
 var creaturesLabel = document.getElementById("creaturesLabel");
 var creaturesList = document.getElementById("creaturesList");
 
+//Battle DOM
+var battleArea = document.getElementById("battleArea");
+
 //Log DOM
 var logArea = document.getElementById("logArea");
 
 var gatherEnergyTimer;
+var batlleInterval;
 
 //Send first message (Not a good solution)
 logArea.innerHTML =
@@ -205,13 +219,17 @@ function clickedPurchase(unit) {
     data.creatureCount < data.maxCreatures
   ) {
     creatures.push({
+      id: id,
       name: names[Math.floor(Math.random() * names.length)],
-      attack: Math.floor(Math.random() * 10),
-      defence: Math.floor(Math.random() * 10)
+      attack: Math.floor(Math.random() * (maxAttack - minAttack) + minAttack),
+      defence: Math.floor(
+        Math.random() * (maxDefence - minDefence) + minDefence
+      )
     });
     energy -= 25;
     data.creatureCount++;
     var li = document.createElement("li");
+    var btn = document.createElement("BUTTON");
     li.appendChild(
       document.createTextNode(
         ` ${creatures[creatures.length - 1].name} - Attack: ${
@@ -219,8 +237,11 @@ function clickedPurchase(unit) {
         } | Defence: ${creatures[creatures.length - 1].defence} `
       )
     );
-    creaturesList.appendChild(li);
+    li.appendChild(btn);
+    btn.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedBattleLoop(${id})" > Send to Battle </button>`;
 
+    li.id = `creatureComponent${id}`;
+    creaturesList.appendChild(li);
     if (storyUnlocks.creature == false) {
       purchasePanel.classList.remove("hidden");
       logArea.innerHTML =
@@ -234,7 +255,7 @@ function clickedPurchase(unit) {
       }, 3000);
       storyUnlocks.creature = true;
     }
-
+    id++;
     updateCounts();
   }
 }
@@ -245,4 +266,34 @@ function updateCounts() {
   creaturesLabel.innerText = `Creatures: ${data.creatureCount} / ${
     data.maxCreatures
   }`;
+}
+
+//Battle loop
+function startedBattleLoop(e) {
+  creatureObject = creatures[e];
+  if (battling == false) {
+    battleArea.innerHTML =
+      "<p id='timer'>10 seconds..<p>" +
+      new Date().toLocaleTimeString() +
+      ` <p class = 'flashit'> You send out ${
+        creatureObject.name
+      } to begin exploring the local area.</p><br>` +
+      battleArea.innerHTML;
+    setTimeout(function() {
+      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+    }, 3000);
+    battling = true;
+    var timer = document.getElementById("timer");
+    var time = 10;
+
+    battleInterval = setInterval(function() {
+      console.log("Updating timer");
+      time--;
+      timer.innerText = `${time} seconds..`;
+      if (time < 0.001) {
+        clearInterval(battleInterval);
+      }
+    }, 1000);
+    timer.removeAttribute("id");
+  }
 }
