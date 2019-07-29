@@ -1,5 +1,6 @@
 let data = {
   energy: 0,
+  gold: 0,
   creatures: [],
   creatureCount: 0,
   maxCreatures: 3
@@ -25,7 +26,7 @@ let battleStats = {
   battlesWon: 0
 };
 
-let { energy, creatures } = data;
+let { energy, creatures, gold } = data;
 let { minAttack, maxAttack, minDefence, maxDefence, battling } = battleStats;
 let id = 0;
 const names = [
@@ -134,6 +135,7 @@ const names = [
 //Energy DOM
 var energyLabel = document.getElementById("energyLabel");
 var energyButton = document.getElementById("energyButton");
+var goldLabel = document.getElementById("goldLabel");
 
 //Purchasing DOM
 var purchasePanel = document.getElementById("purchasePanel");
@@ -271,6 +273,7 @@ function updateCounts() {
   creaturesLabel.innerText = `Creatures: ${data.creatureCount} / ${
     data.maxCreatures
   }`;
+  goldLabel.innerText = `Gold: ${gold}`;
 }
 
 //Started battle loop
@@ -321,7 +324,7 @@ function battleAction(e) {
     `<p class = "flashit">
  ${battleCreature.name} comes across a rodent with ${
       enemy.health
-    } health. </p>` + battleArea.innerHTML;
+    } health and  </p>` + battleArea.innerHTML;
   setTimeout(function() {
     document.getElementsByClassName("flashit")[0].classList.remove("flashit");
   }, 3000);
@@ -359,10 +362,13 @@ function battleAction(e) {
     battling = false;
     setTimeout(startedBattleLoop(e), 3000);
   } else {
+    let reward = 100 * battleCreature.battlesWon;
     battleArea.innerHTML =
-      `<p class= "flashit"> ${battleCreature.name} has died. After winning ${
+      `<p class= "flashit">runs from the foe and back to the tower after winning ${
         battleCreature.battlesWon
-      } battles. <p>` + battleArea.innerHTML;
+      } battles. He returns with a bag of ${reward} gold. <p>` +
+      battleArea.innerHTML;
+    gold = gold + reward;
     setTimeout(function() {
       document.getElementsByClassName("flashit")[0].classList.remove("flashit");
     }, 3000);
