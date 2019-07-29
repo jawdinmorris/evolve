@@ -21,7 +21,8 @@ let battleStats = {
   minDefence: 1,
   maxDefence: 3,
   health: 5,
-  battling: false
+  battling: false,
+  battlesWon: 0
 };
 
 let { energy, creatures } = data;
@@ -227,7 +228,8 @@ function clickedPurchase(unit) {
       defence: Math.floor(
         Math.random() * (maxDefence - minDefence) + minDefence
       ),
-      health: 10
+      health: 10,
+      battlesWon: 0
     });
     energy -= 25;
     data.creatureCount++;
@@ -287,7 +289,7 @@ function startedBattleLoop(e) {
     }, 3000);
     battling = true;
     var timer = document.getElementById("timer");
-    var time = 3;
+    var time = 10;
 
     battleInterval = setInterval(function() {
       time--;
@@ -303,14 +305,17 @@ function startedBattleLoop(e) {
 
 function battleAction(e) {
   var battleCreature = creatures[e];
+  let enemyAttack;
+  console.log(enemyAttack);
+  let enemyDefence = 0 + battleCreature.battlesWon;
   var enemy = {
-    attack: 1.5,
-    defence: 0,
+    attack: 1 + battleCreature.battlesWon,
+    defence: enemyDefence,
     health: 10
   };
   console.log(enemy);
   console.log(battleCreature);
-  turns = 0;
+  let turns = 0;
   while (battleCreature.health > 0.001 && enemy.health > 0.001) {
     //Hit enemy
     if (battleCreature.health > 0) {
@@ -328,15 +333,25 @@ function battleAction(e) {
     }
   }
   if (battleCreature.health > enemy.health) {
-    console.log(
-      `${
+    battleArea.innerHTML =
+      `<p class = "flashit"> ${
         battleCreature.name
       } stands over the body of a small rodent in victory. ${
         battleCreature.name
-      } took ${turns} turns to defeat the rodent`
-    );
-    battleAction(e);
+      } took ${turns} turns to defeat the rodent </p>` + battleArea.innerHTML;
+    battleCreature.battlesWon++;
+    battling = false;
+    setTimeout(function() {
+      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+    }, 3000);
+    startedBattleLoop(e);
   } else {
-    console.log("You have died.");
+    battleArea.innerHTML =
+      `<p class= "flashit"> You have died. After winning ${
+        battleCreature.battlesWon
+      } battles. <p>` + battleArea.innerHTML;
+    setTimeout(function() {
+      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+    }, 3000);
   }
 }
