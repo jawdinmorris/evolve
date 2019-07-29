@@ -280,9 +280,9 @@ function startedBattleLoop(e) {
     battleArea.innerHTML =
       "<p id='timer'>10 seconds..<p>" +
       new Date().toLocaleTimeString() +
-      ` <p class = 'flashit'> You send out ${
+      ` <p class = 'flashit'>${
         creatureObject.name
-      } to begin exploring the local area.</p><br>` +
+      } walks the local area aimlessly. </p><br>` +
       battleArea.innerHTML;
     setTimeout(function() {
       document.getElementsByClassName("flashit")[0].classList.remove("flashit");
@@ -295,6 +295,7 @@ function startedBattleLoop(e) {
       time--;
       timer.innerText = `${time} seconds..`;
       if (time < 0.001) {
+        timer.classList.add("hidden");
         clearInterval(battleInterval);
         battleAction(e);
       }
@@ -316,8 +317,22 @@ function battleAction(e) {
   console.log(enemy);
   console.log(battleCreature);
   let turns = 0;
+  battleArea.innerHTML =
+    `<p class = "flashit">
+ ${battleCreature.name} comes across a rodent with ${
+      enemy.health
+    } health. </p>` + battleArea.innerHTML;
+  setTimeout(function() {
+    document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+  }, 3000);
   while (battleCreature.health > 0.001 && enemy.health > 0.001) {
     //Hit enemy
+    if (
+      enemy.attack == battleCreature.defence &&
+      battleCreature.attack == enemy.defence
+    ) {
+      enemy.attack++;
+    }
     if (battleCreature.health > 0) {
       enemy.health = enemy.health - (battleCreature.attack - enemy.defence);
       console.log(`Enemy now has ${enemy.health} health remaining.`);
@@ -334,24 +349,23 @@ function battleAction(e) {
   }
   if (battleCreature.health > enemy.health) {
     battleArea.innerHTML =
-      `<p class = "flashit"> ${
-        battleCreature.name
-      } stands over the body of a small rodent in victory. ${
-        battleCreature.name
-      } took ${turns} turns to defeat the rodent </p>` + battleArea.innerHTML;
+      `<p class = "flashit">
+ ${battleCreature.name} took ${turns} turns to defeat the rodent </p>` +
+      battleArea.innerHTML;
     battleCreature.battlesWon++;
-    battling = false;
     setTimeout(function() {
       document.getElementsByClassName("flashit")[0].classList.remove("flashit");
     }, 3000);
-    startedBattleLoop(e);
+    battling = false;
+    setTimeout(startedBattleLoop(e), 3000);
   } else {
     battleArea.innerHTML =
-      `<p class= "flashit"> You have died. After winning ${
+      `<p class= "flashit"> ${battleCreature.name} has died. After winning ${
         battleCreature.battlesWon
       } battles. <p>` + battleArea.innerHTML;
     setTimeout(function() {
       document.getElementsByClassName("flashit")[0].classList.remove("flashit");
     }, 3000);
+    battling = false;
   }
 }
