@@ -1,5 +1,6 @@
 let data = {
   energy: 0,
+  gold: 0,
   creatures: [],
   creatureCount: 0,
   maxCreatures: 3
@@ -20,9 +21,12 @@ let battleStats = {
   maxAttack: 3,
   minDefence: 1,
   maxDefence: 3,
-  battling: false
+  health: 5,
+  battling: false,
+  battlesWon: 0
 };
-let { energy, creatures } = data;
+
+let { energy, creatures, gold, creatureCount } = data;
 let { minAttack, maxAttack, minDefence, maxDefence, battling } = battleStats;
 let id = 0;
 const names = [
@@ -131,6 +135,7 @@ const names = [
 //Energy DOM
 var energyLabel = document.getElementById("energyLabel");
 var energyButton = document.getElementById("energyButton");
+var goldLabel = document.getElementById("goldLabel");
 
 //Purchasing DOM
 var purchasePanel = document.getElementById("purchasePanel");
@@ -165,7 +170,7 @@ function gatherEnergy() {
       energy++;
       updateCounts();
       checkAvailableUnlocks(energy);
-    }, 1000);
+    }, 100);
     energyButton.innerText = "Gathering Energy";
   } else {
     clearInterval(gatherEnergyTimer);
@@ -213,23 +218,22 @@ function checkAvailableUnlocks(e) {
 
 //Trying to purchase something
 function clickedPurchase(unit) {
-  if (
-    unit == "creature" &&
-    energy >= 25 &&
-    data.creatureCount < data.maxCreatures
-  ) {
+  if (unit == "creature" && energy >= 25 && creatureCount < data.maxCreatures) {
     creatures.push({
       id: id,
       name: names[Math.floor(Math.random() * names.length)],
       attack: Math.floor(Math.random() * (maxAttack - minAttack) + minAttack),
       defence: Math.floor(
         Math.random() * (maxDefence - minDefence) + minDefence
-      )
+      ),
+      health: 10,
+      battlesWon: 0
     });
     energy -= 25;
-    data.creatureCount++;
+    creatureCount++;
     var li = document.createElement("li");
-    var btn = document.createElement("BUTTON");
+    var btnBattle = document.createElement("BUTTON");
+    var btnSacrifice = document.createElement("BUTTON");
     li.appendChild(
       document.createTextNode(
         ` ${creatures[creatures.length - 1].name} - Attack: ${
@@ -237,8 +241,10 @@ function clickedPurchase(unit) {
         } | Defence: ${creatures[creatures.length - 1].defence} `
       )
     );
-    li.appendChild(btn);
-    btn.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedBattleLoop(${id})" > Send to Battle </button>`;
+    li.appendChild(btnBattle);
+    li.appendChild(btnSacrifice);
+    btnBattle.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedBattleLoop(${id})" > Send to Battle </button>`;
+    btnSacrifice.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="killCreature(${id})" > Sacrifice Creature</button>`;
 
     li.id = `creatureComponent${id}`;
     creaturesList.appendChild(li);
@@ -263,22 +269,23 @@ function clickedPurchase(unit) {
 //Easily called update counts
 function updateCounts() {
   energyLabel.innerText = `Energy: ${energy}`;
-  creaturesLabel.innerText = `Creatures: ${data.creatureCount} / ${
+  creaturesLabel.innerText = `Creatures: ${creatureCount} / ${
     data.maxCreatures
   }`;
+  goldLabel.innerText = `Gold: ${gold}`;
 }
 
-//Battle loop
+//Started battle loop
 function startedBattleLoop(e) {
   creatureObject = creatures[e];
   if (battling == false) {
     battleArea.innerHTML =
-      "<p id='timer'>10 seconds..<p>" +
+      battleArea.innerHTML +
       new Date().toLocaleTimeString() +
-      ` <p class = 'flashit'> You send out ${
+      ` <p class = 'flashit'>${
         creatureObject.name
-      } to begin exploring the local area.</p><br>` +
-      battleArea.innerHTML;
+      } walks the local area aimlessly. </p>` +
+      "<p id='timer'>10 seconds..<p>";
     setTimeout(function() {
       document.getElementsByClassName("flashit")[0].classList.remove("flashit");
     }, 3000);
@@ -287,13 +294,87 @@ function startedBattleLoop(e) {
     var time = 10;
 
     battleInterval = setInterval(function() {
-      console.log("Updating timer");
       time--;
       timer.innerText = `${time} seconds..`;
       if (time < 0.001) {
+        timer.classList.add("hidden");
         clearInterval(battleInterval);
+        battleAction(e);
       }
     }, 1000);
     timer.removeAttribute("id");
   }
+}
+
+function battleAction(e) {
+  var battleCreature = creatures[e];
+  let enemyAttack;
+  let enemyDefence = 0 + battleCreature.battlesWon;
+  var enemy = {
+    attack: 1 + battleCreature.battlesWon,
+    defence: enemyDefence,
+    health: 10
+  };
+  let turns = 0;
+  battleArea.innerHTML =
+    battleArea.innerHTML +
+    `<p class = "flashit">
+ ${battleCreature.name} comes across a rodent with ${
+      enemy.health
+    } health and  `;
+  while (battleCreature.health > 0.001 && enemy.health > 0.001) {
+    //Hit enemy
+    if (
+      enemy.attack == battleCreature.defence &&
+      battleCreature.attack == enemy.defence
+    ) {
+      enemy.attack++;
+    }
+    if (battleCreature.health > 0) {
+      enemy.health = enemy.health - (battleCreature.attack - enemy.defence);
+    }
+    //Hit creature
+    if (enemy.health > 0) {
+      battleCreature.health =
+        battleCreature.health - (enemy.attack - battleCreature.defence);
+      turns++;
+    }
+  }
+  if (battleCreature.health > enemy.health) {
+    battleArea.innerHTML =
+      battleArea.innerHTML +
+      `
+ takes ${turns} turns to defeat the rodent </p> <br>`;
+    battleCreature.battlesWon++;
+    setTimeout(function() {
+      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+    }, 3000);
+    battling = false;
+    setTimeout(startedBattleLoop(e), 3000);
+  } else {
+    let reward = 100 * battleCreature.battlesWon;
+    battleArea.innerHTML =
+      battleArea.innerHTML +
+      `runs from the foe and back to the tower after winning ${
+        battleCreature.battlesWon
+      } battles. He returns with a bag of ${reward} gold. <p>`;
+    gold = gold + reward;
+    battleArea.scrollBy({
+      top: 1000,
+      behavior: "smooth"
+    });
+    setTimeout(function() {
+      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
+    }, 3000);
+    battling = false;
+    killCreature(e);
+  }
+}
+
+function killCreature(e) {
+  console.log(creatures);
+  document.getElementById(`creatureComponent${e}`).remove();
+  creatures.splice(e, 1);
+  creatureCount--;
+  console.log(creatures);
 }
