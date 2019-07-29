@@ -20,8 +20,10 @@ let battleStats = {
   maxAttack: 3,
   minDefence: 1,
   maxDefence: 3,
+  health: 5,
   battling: false
 };
+
 let { energy, creatures } = data;
 let { minAttack, maxAttack, minDefence, maxDefence, battling } = battleStats;
 let id = 0;
@@ -165,7 +167,7 @@ function gatherEnergy() {
       energy++;
       updateCounts();
       checkAvailableUnlocks(energy);
-    }, 1000);
+    }, 100);
     energyButton.innerText = "Gathering Energy";
   } else {
     clearInterval(gatherEnergyTimer);
@@ -224,7 +226,8 @@ function clickedPurchase(unit) {
       attack: Math.floor(Math.random() * (maxAttack - minAttack) + minAttack),
       defence: Math.floor(
         Math.random() * (maxDefence - minDefence) + minDefence
-      )
+      ),
+      health: 10
     });
     energy -= 25;
     data.creatureCount++;
@@ -268,7 +271,7 @@ function updateCounts() {
   }`;
 }
 
-//Battle loop
+//Started battle loop
 function startedBattleLoop(e) {
   creatureObject = creatures[e];
   if (battling == false) {
@@ -284,16 +287,56 @@ function startedBattleLoop(e) {
     }, 3000);
     battling = true;
     var timer = document.getElementById("timer");
-    var time = 10;
+    var time = 3;
 
     battleInterval = setInterval(function() {
-      console.log("Updating timer");
       time--;
       timer.innerText = `${time} seconds..`;
       if (time < 0.001) {
         clearInterval(battleInterval);
+        battleAction(e);
       }
     }, 1000);
     timer.removeAttribute("id");
+  }
+}
+
+function battleAction(e) {
+  var battleCreature = creatures[e];
+  var enemy = {
+    attack: 1.5,
+    defence: 0,
+    health: 10
+  };
+  console.log(enemy);
+  console.log(battleCreature);
+  turns = 0;
+  while (battleCreature.health > 0.001 && enemy.health > 0.001) {
+    //Hit enemy
+    if (battleCreature.health > 0) {
+      enemy.health = enemy.health - (battleCreature.attack - enemy.defence);
+      console.log(`Enemy now has ${enemy.health} health remaining.`);
+    }
+    //Hit creature
+    if (enemy.health > 0) {
+      battleCreature.health =
+        battleCreature.health - (enemy.attack - battleCreature.defence);
+      console.log(
+        `Creature now has ${battleCreature.health}  health remaining.`
+      );
+      turns++;
+    }
+  }
+  if (battleCreature.health > enemy.health) {
+    console.log(
+      `${
+        battleCreature.name
+      } stands over the body of a small rodent in victory. ${
+        battleCreature.name
+      } took ${turns} turns to defeat the rodent`
+    );
+    battleAction(e);
+  } else {
+    console.log("You have died.");
   }
 }
