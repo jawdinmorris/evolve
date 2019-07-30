@@ -148,20 +148,16 @@ var creaturesList = document.getElementById("creaturesList");
 //Battle DOM
 var battleArea = document.getElementById("battleArea");
 
-//Log DOM
-var logArea = document.getElementById("logArea");
-
 var gatherEnergyTimer;
 var batlleInterval;
 
 //Send first message (Not a good solution)
-logArea.innerHTML =
-  new Date().toLocaleTimeString() +
-  " <p class = 'flashit'> You wake up after being knocked out cold. You don't remember much. Except now you must gather energy from the universe once more.</p>";
-setTimeout(function() {
-  document.getElementsByClassName("flashit")[0].classList.remove("flashit");
-}, 3000);
-
+addMessageToLog(
+  "welcomeArea",
+  "You wake up after being knocked out cold. You don't remember much. Except now you must gather energy from the universe once more.",
+  "logArea",
+  1
+);
 //Clicked Gather Energy Button
 function gatherEnergy() {
   state.gatheringEnergy = !state.gatheringEnergy;
@@ -184,31 +180,24 @@ function checkAvailableUnlocks(e) {
     case 5:
       if (storyUnlocks.five == false) {
         purchasePanel.classList.remove("hidden");
-        logArea.innerHTML =
-          new Date().toLocaleTimeString() +
-          "<p class = 'flashit'> You feel your knowledge regaining. </p><br>" +
-          logArea.innerHTML;
-        storyUnlocks.five = true;
-        setTimeout(function() {
-          document
-            .getElementsByClassName("flashit")[0]
-            .classList.remove("flashit");
-        }, 3000);
+        addMessageToLog(
+          "knowledgeRegaining",
+          "You feel your knowledge regaining.",
+          "logArea",
+          1
+        );
       }
       break;
     case 15:
       if (storyUnlocks.fifteen == false) {
         buyCreature.classList.remove("hidden");
-        logArea.innerHTML =
-          new Date().toLocaleTimeString() +
-          "<p class = 'flashit'> You remember you used to have minions. </p><br>" +
-          logArea.innerHTML;
+        addMessageToLog(
+          "rememberMinions",
+          "You remember you used to have minions.",
+          "logArea",
+          1
+        );
         storyUnlocks.fifteen = true;
-        setTimeout(function() {
-          document
-            .getElementsByClassName("flashit")[0]
-            .classList.remove("flashit");
-        }, 3000);
       }
       break;
     default:
@@ -250,15 +239,14 @@ function clickedPurchase(unit) {
     creaturesList.appendChild(li);
     if (storyUnlocks.creature == false) {
       purchasePanel.classList.remove("hidden");
-      logArea.innerHTML =
-        new Date().toLocaleTimeString() +
-        "<p class='flashit'> You kind of smoosh the energy from the universe together. It creates a grotesque creature you feel immediate sympathy for. </p><br>" +
-        logArea.innerHTML;
-      setTimeout(function() {
-        document
-          .getElementsByClassName("flashit")[0]
-          .classList.remove("flashit");
-      }, 3000);
+
+      addMessageToLog(
+        "firstCreature",
+        "You kind of smoosh the energy from the universe together. It creates a grotesque creature you feel immediate sympathy for. ",
+        "logArea",
+        1
+      );
+
       storyUnlocks.creature = true;
     }
     id++;
@@ -279,30 +267,26 @@ function updateCounts() {
 function startedBattleLoop(e) {
   creatureObject = creatures[e];
   if (battling == false) {
-    battleArea.innerHTML =
-      battleArea.innerHTML +
-      new Date().toLocaleTimeString() +
-      ` <p class = 'flashit'>${
-        creatureObject.name
-      } walks the local area aimlessly. </p>` +
-      "<p id='timer'>10 seconds..<p>";
-    setTimeout(function() {
-      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
-    }, 3000);
+    addMessageToLog(
+      "walkAimlessly",
+      `${creatureObject.name} walks the local area aimlessly. </p>`,
+      "battleArea",
+      0
+    );
     battling = true;
     var timer = document.getElementById("timer");
     var time = 10;
+    timer.innerText = `Encounter Timer: ${time} seconds..`;
 
     battleInterval = setInterval(function() {
       time--;
-      timer.innerText = `${time} seconds..`;
+      timer.innerText = `Encounter Timer: ${time} seconds..`;
       if (time < 0.001) {
-        timer.classList.add("hidden");
+        timer.innerText = `Encounter Timer: Fighting`;
         clearInterval(battleInterval);
         battleAction(e);
       }
     }, 1000);
-    timer.removeAttribute("id");
   }
 }
 
@@ -316,12 +300,14 @@ function battleAction(e) {
     health: 10
   };
   let turns = 0;
-  battleArea.innerHTML =
-    battleArea.innerHTML +
-    `<p class = "flashit">
- ${battleCreature.name} comes across a rodent with ${
+  addMessageToLog(
+    "encounterEnemy",
+    ` ${battleCreature.name} comes across a rodent with ${
       enemy.health
-    } health and  `;
+    } health `,
+    "battleArea",
+    0
+  );
   while (battleCreature.health > 0.001 && enemy.health > 0.001) {
     //Hit enemy
     if (
@@ -341,31 +327,27 @@ function battleAction(e) {
     }
   }
   if (battleCreature.health > enemy.health) {
-    battleArea.innerHTML =
-      battleArea.innerHTML +
-      `
- takes ${turns} turns to defeat the rodent </p> <br>`;
+    addMessageToLog(
+      "beatEnemy",
+      `${battleCreature.name} takes ${turns} turns to defeat the Rodent.`,
+      "battleArea",
+      0
+    );
     battleCreature.battlesWon++;
-    setTimeout(function() {
-      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
-    }, 3000);
     battling = false;
     setTimeout(startedBattleLoop(e), 3000);
   } else {
     let reward = 100 * battleCreature.battlesWon;
-    battleArea.innerHTML =
-      battleArea.innerHTML +
-      `runs from the foe and back to the tower after winning ${
-        battleCreature.battlesWon
-      } battles. He returns with a bag of ${reward} gold. <p>`;
+
+    addMessageToLog(
+      "beatEnemy",
+      `${
+        battleCreature.name
+      } is defeated after ${turns} turns. You muster your powers to teleport back a bag containing ${reward} gold.`,
+      "battleArea",
+      0
+    );
     gold = gold + reward;
-    battleArea.scrollBy({
-      top: 1000,
-      behavior: "smooth"
-    });
-    setTimeout(function() {
-      document.getElementsByClassName("flashit")[0].classList.remove("flashit");
-    }, 3000);
     battling = false;
     killCreature(e);
   }
@@ -374,7 +356,27 @@ function battleAction(e) {
 function killCreature(e) {
   console.log(creatures);
   document.getElementById(`creatureComponent${e}`).remove();
-  creatures.splice(e, 1);
   creatureCount--;
   console.log(creatures);
+}
+
+function addMessageToLog(id, message, element, flashTimer) {
+  let elementArea = document.getElementById(element);
+  elementArea.innerHTML =
+    elementArea.innerHTML +
+    new Date().toLocaleTimeString() +
+    `<p id="${id}">` +
+    String(message) +
+    "<p></br>";
+  if (flashTimer > 0) {
+    let targetElement = document.getElementById(id);
+    targetElement.classList.add("flashit");
+    setTimeout(function() {
+      targetElement.classList.remove("flashit");
+    }, flashTimer * 1000);
+  }
+  elementArea.scrollBy({
+    top: 1000,
+    behavior: "smooth"
+  });
 }
