@@ -7,6 +7,15 @@ div {
   visibility: hidden;
 }
 
+#creaturesPanel {
+  position: relative;
+}
+#exploreSummary {
+  position: absolute;
+  bottom: 10px;
+  color: darkgreen;
+}
+
 .flashit {
   color: black;
   -webkit-animation: flash linear 1s infinite;

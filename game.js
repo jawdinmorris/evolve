@@ -25,7 +25,7 @@ let battleStats = {
   maxAttack: 3,
   minDefence: 1,
   maxDefence: 3,
-  health: 5,
+  health: 20,
   battling: false,
   battlesWon: 0,
   reward: 0
@@ -33,7 +33,14 @@ let battleStats = {
 
 //Pull out some common variables
 let { energy, creatures, gold, creatureCount } = data;
-let { minAttack, maxAttack, minDefence, maxDefence, battling } = battleStats;
+let {
+  minAttack,
+  maxAttack,
+  minDefence,
+  maxDefence,
+  health,
+  battling
+} = battleStats;
 
 //set first creature ID (When session saving is done this will need to change)
 let id = 0;
@@ -220,7 +227,7 @@ function clickedPurchase(unit) {
       defence: Math.floor(
         Math.random() * (maxDefence - minDefence) + minDefence
       ),
-      health: 10,
+      health: health,
       battlesWon: 0,
       reward: 0
     });
@@ -273,12 +280,12 @@ function updateCounts() {
 
 //Started Adventure loop
 function startedAdventureLoop(e) {
-  //Remove from DOM and allow more room
-  killCreature(e);
   creatureObject = creatures[e];
 
   //Make sure they're not already battling
   if (battling == false) {
+    //Remove from DOM and allow more room
+    killCreature(e);
     battling = true;
     addMessageToLog(
       "walkAimlessly",
@@ -318,8 +325,8 @@ function battleAction(e) {
   addMessageToLog(
     "encounterEnemy",
     ` ${battleCreature.name} comes across a rodent with ${
-      enemy.health
-    } health `,
+      enemy.attack
+    } attack and ${enemy.defence} defence `,
     "battleArea",
     0
   );
@@ -334,26 +341,33 @@ function battleAction(e) {
   //Loop hits
   while (battleCreature.health > 0.001 && enemy.health > 0.001) {
     //Hit enemy
-    if (battleCreature.health > 0) {
+    if (
+      battleCreature.health > 0 &&
+      battleCreature.attack - enemy.defence > 0
+    ) {
       enemy.health = enemy.health - (battleCreature.attack - enemy.defence);
     }
     //Hit creature
-    if (enemy.health > 0) {
+    if (enemy.health > 0 && enemy.attack - battleCreature.defence) {
       battleCreature.health =
         battleCreature.health - (enemy.attack - battleCreature.defence);
-      turns++;
     }
+    turns++;
   }
 
   //Someone has won
   if (battleCreature.health > enemy.health) {
+    battleCreature.battlesWon++;
     addMessageToLog(
       "beatEnemy",
-      `${battleCreature.name} takes ${turns} turns to defeat the Rodent.`,
+      `${battleCreature.name} manages to win with ${
+        battleCreature.health
+      } health remaining. ${
+        battleCreature.name
+      } finds  ${battleCreature.battlesWon * 100} gold on the body`,
       "battleArea",
       0
     );
-    battleCreature.battlesWon++;
 
     //Reset battle
     battling = false;
@@ -362,10 +376,18 @@ function battleAction(e) {
       battleCreature.reward + battleCreature.battlesWon * 100;
   } else {
     addMessageToLog(
-      "beatEnemy",
-      `${
-        battleCreature.name
-      } is defeated after ${turns} turns. You muster your powers to teleport back a bag containing ${
+      "lostToEnemy",
+      `The rodent defeats ${battleCreature.name} with ${
+        enemy.health
+      } health remaning.`,
+      "battleArea",
+      0
+    );
+    addMessageToLog(
+      "sendRewardHome",
+      `${battleCreature.name} is finally defeated after winning ${
+        battleCreature.battlesWon
+      } battles. You muster your powers to teleport back a bag containing ${
         battleCreature.reward
       } gold.`,
       "battleArea",
