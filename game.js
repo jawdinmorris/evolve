@@ -1,3 +1,4 @@
+//Player Data
 let data = {
   energy: 0,
   gold: 0,
@@ -6,16 +7,19 @@ let data = {
   maxCreatures: 3
 };
 
+//Game State
 let state = {
   gatheringEnergy: false
 };
 
+//Unlocks in story based on energy count (Maybe Refactor?)
 let storyUnlocks = {
   five: false,
   fifteen: false,
   creature: false
 };
 
+//Creature's battle stats
 let battleStats = {
   minAttack: 1,
   maxAttack: 3,
@@ -23,12 +27,18 @@ let battleStats = {
   maxDefence: 3,
   health: 5,
   battling: false,
-  battlesWon: 0
+  battlesWon: 0,
+  reward: 0
 };
 
+//Pull out some common variables
 let { energy, creatures, gold, creatureCount } = data;
 let { minAttack, maxAttack, minDefence, maxDefence, battling } = battleStats;
+
+//set first creature ID (When session saving is done this will need to change)
 let id = 0;
+
+//Random data names, will seperate out into own file and use for other things.
 const names = [
   "Mara",
   "Shad",
@@ -132,6 +142,7 @@ const names = [
   "Damon"
 ];
 
+//    These will be replaced with refactoring
 //Energy DOM
 var energyLabel = document.getElementById("energyLabel");
 var energyButton = document.getElementById("energyButton");
@@ -148,9 +159,6 @@ var creaturesList = document.getElementById("creaturesList");
 //Battle DOM
 var battleArea = document.getElementById("battleArea");
 
-var gatherEnergyTimer;
-var batlleInterval;
-
 //Send first message (Not a good solution)
 addMessageToLog(
   "welcomeArea",
@@ -158,9 +166,11 @@ addMessageToLog(
   "logArea",
   1
 );
+
 //Clicked Gather Energy Button
 function gatherEnergy() {
   state.gatheringEnergy = !state.gatheringEnergy;
+  let gatherEnergyTimer;
   if (state.gatheringEnergy == true) {
     gatherEnergyTimer = setInterval(function() {
       energy++;
@@ -176,38 +186,33 @@ function gatherEnergy() {
 
 //Check Available Unlocks (Called when Energy is being gathered)
 function checkAvailableUnlocks(e) {
-  switch (e) {
-    case 5:
-      if (storyUnlocks.five == false) {
-        purchasePanel.classList.remove("hidden");
-        addMessageToLog(
-          "knowledgeRegaining",
-          "You feel your knowledge regaining.",
-          "logArea",
-          1
-        );
-      }
-      break;
-    case 15:
-      if (storyUnlocks.fifteen == false) {
-        buyCreature.classList.remove("hidden");
-        addMessageToLog(
-          "rememberMinions",
-          "You remember you used to have minions.",
-          "logArea",
-          1
-        );
-        storyUnlocks.fifteen = true;
-      }
-      break;
-    default:
-      break;
+  if (e > 5 && storyUnlocks.five == false) {
+    purchasePanel.classList.remove("hidden");
+    addMessageToLog(
+      "knowledgeRegaining",
+      "You feel your knowledge regaining.",
+      "logArea",
+      1
+    );
+    storyUnlocks.five = true;
+  }
+  if (e > 15 && storyUnlocks.fifteen == false) {
+    buyCreature.classList.remove("hidden");
+    addMessageToLog(
+      "rememberMinions",
+      "You remember you used to have minions.",
+      "logArea",
+      1
+    );
+    storyUnlocks.fifteen = true;
   }
 }
 
 //Trying to purchase something
 function clickedPurchase(unit) {
+  //Has purchased a creature
   if (unit == "creature" && energy >= 25 && creatureCount < data.maxCreatures) {
+    //Create creature
     creatures.push({
       id: id,
       name: names[Math.floor(Math.random() * names.length)],
@@ -216,10 +221,11 @@ function clickedPurchase(unit) {
         Math.random() * (maxDefence - minDefence) + minDefence
       ),
       health: 10,
-      battlesWon: 0
+      battlesWon: 0,
+      reward: 0
     });
-    energy -= 25;
-    creatureCount++;
+
+    //Create creature DOM elements
     var li = document.createElement("li");
     var btnBattle = document.createElement("BUTTON");
     var btnSacrifice = document.createElement("BUTTON");
@@ -232,24 +238,26 @@ function clickedPurchase(unit) {
     );
     li.appendChild(btnBattle);
     li.appendChild(btnSacrifice);
-    btnBattle.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedBattleLoop(${id})" > Send to Battle </button>`;
+    btnBattle.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedAdventureLoop(${id})" > Send to Battle </button>`;
     btnSacrifice.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="killCreature(${id})" > Sacrifice Creature</button>`;
-
     li.id = `creatureComponent${id}`;
     creaturesList.appendChild(li);
-    if (storyUnlocks.creature == false) {
-      purchasePanel.classList.remove("hidden");
 
+    //Story unlock for creature
+    if (storyUnlocks.creature == false) {
       addMessageToLog(
         "firstCreature",
         "You kind of smoosh the energy from the universe together. It creates a grotesque creature you feel immediate sympathy for. ",
         "logArea",
         1
       );
-
       storyUnlocks.creature = true;
     }
+
+    //Update individual counts and run global updateCounts
     id++;
+    energy -= 25;
+    creatureCount++;
     updateCounts();
   }
 }
@@ -263,27 +271,32 @@ function updateCounts() {
   goldLabel.innerText = `Gold: ${gold}`;
 }
 
-//Started battle loop
-function startedBattleLoop(e) {
+//Started Adventure loop
+function startedAdventureLoop(e) {
   creatureObject = creatures[e];
+
+  //Make sure they're not already battling
   if (battling == false) {
+    battling = true;
     addMessageToLog(
       "walkAimlessly",
       `${creatureObject.name} walks the local area aimlessly. </p>`,
       "battleArea",
       0
     );
-    battling = true;
+
+    //Create wander counter
     var timer = document.getElementById("timer");
     var time = 10;
     timer.innerText = `Encounter Timer: ${time} seconds..`;
 
-    battleInterval = setInterval(function() {
+    //Start counting down
+    wanderInterval = setInterval(function() {
       time--;
       timer.innerText = `Encounter Timer: ${time} seconds..`;
       if (time < 0.001) {
-        timer.innerText = `Encounter Timer: Fighting`;
-        clearInterval(battleInterval);
+        clearInterval(wanderInterval);
+        // HERE you would randomise the action being called (Fighting, gathering etc.)
         battleAction(e);
       }
     }, 1000);
@@ -291,15 +304,15 @@ function startedBattleLoop(e) {
 }
 
 function battleAction(e) {
+  //Setup fight
   var battleCreature = creatures[e];
-  let enemyAttack;
-  let enemyDefence = 0 + battleCreature.battlesWon;
   var enemy = {
     attack: 1 + battleCreature.battlesWon,
-    defence: enemyDefence,
+    defence: 0 + battleCreature.battlesWon,
     health: 10
   };
   let turns = 0;
+
   addMessageToLog(
     "encounterEnemy",
     ` ${battleCreature.name} comes across a rodent with ${
@@ -308,14 +321,17 @@ function battleAction(e) {
     "battleArea",
     0
   );
+  //Avoid stalemate by making enemy win
+  if (
+    enemy.attack == battleCreature.defence &&
+    battleCreature.attack == enemy.defence
+  ) {
+    enemy.attack++;
+  }
+
+  //Loop hits
   while (battleCreature.health > 0.001 && enemy.health > 0.001) {
     //Hit enemy
-    if (
-      enemy.attack == battleCreature.defence &&
-      battleCreature.attack == enemy.defence
-    ) {
-      enemy.attack++;
-    }
     if (battleCreature.health > 0) {
       enemy.health = enemy.health - (battleCreature.attack - enemy.defence);
     }
@@ -326,6 +342,8 @@ function battleAction(e) {
       turns++;
     }
   }
+
+  //Someone has won
   if (battleCreature.health > enemy.health) {
     addMessageToLog(
       "beatEnemy",
@@ -334,25 +352,32 @@ function battleAction(e) {
       0
     );
     battleCreature.battlesWon++;
-    battling = false;
-    setTimeout(startedBattleLoop(e), 3000);
-  } else {
-    let reward = 100 * battleCreature.battlesWon;
 
+    //Reset battle
+    battling = false;
+    setTimeout(startedAdventureLoop(e), 3000);
+    battleCreature.reward =
+      battleCreature.reward + battleCreature.battlesWon * 100;
+  } else {
     addMessageToLog(
       "beatEnemy",
       `${
         battleCreature.name
-      } is defeated after ${turns} turns. You muster your powers to teleport back a bag containing ${reward} gold.`,
+      } is defeated after ${turns} turns. You muster your powers to teleport back a bag containing ${
+        battleCreature.reward
+      } gold.`,
       "battleArea",
       0
     );
-    gold = gold + reward;
+
+    //Send rewards home and kill creature
+    gold = gold + battleCreature.reward;
     battling = false;
     killCreature(e);
   }
 }
 
+//Kill creature
 function killCreature(e) {
   console.log(creatures);
   document.getElementById(`creatureComponent${e}`).remove();
@@ -360,6 +385,7 @@ function killCreature(e) {
   console.log(creatures);
 }
 
+//Easy function for adding messages to DOM
 function addMessageToLog(id, message, element, flashTimer) {
   let elementArea = document.getElementById(element);
   elementArea.innerHTML =
@@ -372,6 +398,7 @@ function addMessageToLog(id, message, element, flashTimer) {
     let targetElement = document.getElementById(id);
     targetElement.classList.add("flashit");
     setTimeout(function() {
+      let targetElement = document.getElementById(id);
       targetElement.classList.remove("flashit");
     }, flashTimer * 1000);
   }
