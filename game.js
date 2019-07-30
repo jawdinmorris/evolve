@@ -273,6 +273,8 @@ function updateCounts() {
 
 //Started Adventure loop
 function startedAdventureLoop(e) {
+  //Remove from DOM and allow more room
+  killCreature(e);
   creatureObject = creatures[e];
 
   //Make sure they're not already battling
@@ -373,16 +375,15 @@ function battleAction(e) {
     //Send rewards home and kill creature
     gold = gold + battleCreature.reward;
     battling = false;
-    killCreature(e);
   }
 }
 
 //Kill creature
 function killCreature(e) {
-  console.log(creatures);
-  document.getElementById(`creatureComponent${e}`).remove();
-  creatureCount--;
-  console.log(creatures);
+  if (document.getElementById(`creatureComponent${e}`)) {
+    document.getElementById(`creatureComponent${e}`).remove();
+  }
+  creatureCount = document.getElementById("creaturesList").childElementCount;
 }
 
 //Easy function for adding messages to DOM
