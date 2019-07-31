@@ -15,9 +15,6 @@ div {
   bottom: 10px;
 }
 
-#timer {
-  color: darkgreen;
-}
 .flashit {
   color: black;
   -webkit-animation: flash linear 1s infinite;

@@ -398,6 +398,7 @@ function battleAction(e) {
       "battleArea",
       0
     );
+    timer.innerHTML = "DEFEATED";
     updateBattleSummary(creatureObject);
     //Send rewards home and kill creature
     gold = gold + battleCreature.reward;
