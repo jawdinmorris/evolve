@@ -234,17 +234,21 @@ function clickedPurchase(unit) {
 
     //Create creature DOM elements
     var li = document.createElement("li");
+    var liDiv = document.createElement("div");
     var btnBattle = document.createElement("BUTTON");
     var btnSacrifice = document.createElement("BUTTON");
     li.appendChild(
       document.createTextNode(
-        ` ${creatures[creatures.length - 1].name} - Attack: ${
+        ` ${creatures[creatures.length - 1].name} - AP: ${
           creatures[creatures.length - 1].attack
-        } | Defence: ${creatures[creatures.length - 1].defence} `
+        } | DP: ${creatures[creatures.length - 1].defence} | HP: ${
+          creatures[creatures.length - 1].health
+        }`
       )
     );
-    li.appendChild(btnBattle);
-    li.appendChild(btnSacrifice);
+    li.appendChild(liDiv);
+    liDiv.appendChild(btnBattle);
+    liDiv.appendChild(btnSacrifice);
     btnBattle.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedAdventureLoop(${id})" > Send to Battle </button>`;
     btnSacrifice.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="killCreature(${id})" > Sacrifice Creature</button>`;
     li.id = `creatureComponent${id}`;
@@ -281,7 +285,7 @@ function updateCounts() {
 //Started Adventure loop
 function startedAdventureLoop(e) {
   creatureObject = creatures[e];
-
+  updateBattleSummary(creatureObject);
   //Make sure they're not already battling
   if (battling == false) {
     //Remove from DOM and allow more room
@@ -289,7 +293,7 @@ function startedAdventureLoop(e) {
     battling = true;
     addMessageToLog(
       "walkAimlessly",
-      `${creatureObject.name} walks the local area aimlessly. </p>`,
+      `${creatureObject.name} walks the local area aimlessly. </img>`,
       "battleArea",
       0
     );
@@ -371,9 +375,10 @@ function battleAction(e) {
 
     //Reset battle
     battling = false;
-    setTimeout(startedAdventureLoop(e), 3000);
     battleCreature.reward =
       battleCreature.reward + battleCreature.battlesWon * 100;
+    updateBattleSummary(creatureObject);
+    setTimeout(startedAdventureLoop(e), 3000);
   } else {
     addMessageToLog(
       "lostToEnemy",
@@ -393,7 +398,7 @@ function battleAction(e) {
       "battleArea",
       0
     );
-
+    updateBattleSummary(creatureObject);
     //Send rewards home and kill creature
     gold = gold + battleCreature.reward;
     battling = false;
@@ -429,4 +434,16 @@ function addMessageToLog(id, message, element, flashTimer) {
     top: 1000,
     behavior: "smooth"
   });
+}
+
+function updateBattleSummary(creatureObject) {
+  //Create Explore Summary and Update
+  var creatureSummary = document.getElementById("battleCreatureSummary");
+  creatureSummary.innerHTML = `<p> <strong> ${
+    creatureObject.name
+  } </strong> </p> <p>AP: ${creatureObject.attack} | DP: ${
+    creatureObject.defence
+  } | HP: ${creatureObject.health} </p> <p> Battles: ${
+    creatureObject.battlesWon
+  } Gold: ${creatureObject.reward} </p>`;
 }

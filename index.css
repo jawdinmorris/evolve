@@ -13,9 +13,11 @@ div {
 #exploreSummary {
   position: absolute;
   bottom: 10px;
-  color: darkgreen;
 }
 
+#timer {
+  color: darkgreen;
+}
 .flashit {
   color: black;
   -webkit-animation: flash linear 1s infinite;
