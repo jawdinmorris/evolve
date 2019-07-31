@@ -4,7 +4,8 @@ let data = {
   gold: 0,
   creatures: [],
   creatureCount: 0,
-  maxCreatures: 3
+  maxCreatures: 3,
+  totalBattlesWon: 0
 };
 
 //Game State
@@ -19,6 +20,9 @@ let storyUnlocks = {
   creature: false
 };
 
+upgradeUnlocks = {
+  swordOne: false
+};
 //Creature's battle stats
 let battleStats = {
   minAttack: 1,
@@ -157,6 +161,7 @@ var goldLabel = document.getElementById("goldLabel");
 
 //Purchasing DOM
 var purchasePanel = document.getElementById("purchasePanel");
+var purchasePanelList = document.getElementById("purchasePanelList");
 var buyCreature = document.getElementById("buyCreature");
 
 //Creatures DOM
@@ -204,7 +209,7 @@ function checkAvailableUnlocks(e) {
     storyUnlocks.five = true;
   }
   if (e > 15 && storyUnlocks.fifteen == false) {
-    buyCreature.classList.remove("hidden");
+    pushNewUpgradeToScreen("creature", "Summon Creature", 25);
     addMessageToLog(
       "rememberMinions",
       "You remember you used to have minions.",
@@ -212,6 +217,10 @@ function checkAvailableUnlocks(e) {
       1
     );
     storyUnlocks.fifteen = true;
+  }
+  if (data.totalBattlesWon > 3 && upgradeUnlocks.swordOne == false) {
+    pushNewUpgradeToScreen("sword", "Buy Sword", 10);
+    upgradeUnlocks.swordOne = true;
   }
 }
 
@@ -362,6 +371,7 @@ function battleAction(e) {
   //Someone has won
   if (battleCreature.health > enemy.health) {
     battleCreature.battlesWon++;
+    data.totalBattlesWon++;
     addMessageToLog(
       "beatEnemy",
       `${battleCreature.name} manages to win with ${
@@ -447,4 +457,14 @@ function updateBattleSummary(creatureObject) {
   } | HP: ${creatureObject.health} </p> <p> Battles: ${
     creatureObject.battlesWon
   } Gold: ${creatureObject.reward} </p>`;
+}
+
+function pushNewUpgradeToScreen(upgrade, message, cost) {
+  var btn = document.createElement("BUTTON");
+  purchasePanelList.appendChild(btn);
+  btn.outerHTML = `<button onclick="clickedPurchase('${upgrade}')"
+    class="button list-item"
+    id="buy${upgrade}">
+    ${message}: ${cost} Gold
+  </button>`;
 }
