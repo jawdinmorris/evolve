@@ -209,7 +209,7 @@ function checkAvailableUnlocks(e) {
     storyUnlocks.five = true;
   }
   if (e > 15 && storyUnlocks.fifteen == false) {
-    pushNewUpgradeToScreen("creature", "Summon Creature", 25);
+    pushNewUpgradeToScreen("creature", "Summon Creature", 25, "Energy");
     addMessageToLog(
       "rememberMinions",
       "You remember you used to have minions.",
@@ -219,66 +219,81 @@ function checkAvailableUnlocks(e) {
     storyUnlocks.fifteen = true;
   }
   if (data.totalBattlesWon > 3 && upgradeUnlocks.swordOne == false) {
-    pushNewUpgradeToScreen("sword", "Buy Sword", 10);
+    pushNewUpgradeToScreen("sword", "Buy Sword", 10, "Gold");
     upgradeUnlocks.swordOne = true;
   }
 }
 
 //Trying to purchase something
-function clickedPurchase(unit) {
-  //Has purchased a creature
-  if (unit == "creature" && energy >= 25 && creatureCount < data.maxCreatures) {
-    //Create creature
-    creatures.push({
-      id: id,
-      name: names[Math.floor(Math.random() * names.length)],
-      attack: Math.floor(Math.random() * (maxAttack - minAttack) + minAttack),
-      defence: Math.floor(
-        Math.random() * (maxDefence - minDefence) + minDefence
-      ),
-      health: health,
-      battlesWon: 0,
-      reward: 0
-    });
+function clickedPurchase(unit, cost) {
+  switch (unit) {
+    case "sword":
+      if (gold >= cost) {
+        gold -= cost;
+        console.log("Purchased Sword");
+        minAttack += 1;
+        maxAttack += 3;
+      }
+      break;
+    case "creature":
+      if (energy >= cost && creatureCount < data.maxCreatures) {
+        //Create creature
+        creatures.push({
+          id: id,
+          name: names[Math.floor(Math.random() * names.length)],
+          attack: Math.floor(
+            Math.random() * (maxAttack - minAttack) + minAttack
+          ),
+          defence: Math.floor(
+            Math.random() * (maxDefence - minDefence) + minDefence
+          ),
+          health: health,
+          battlesWon: 0,
+          reward: 0
+        });
 
-    //Create creature DOM elements
-    var li = document.createElement("li");
-    var liDiv = document.createElement("div");
-    var btnBattle = document.createElement("BUTTON");
-    var btnSacrifice = document.createElement("BUTTON");
-    li.appendChild(
-      document.createTextNode(
-        ` ${creatures[creatures.length - 1].name} - AP: ${
-          creatures[creatures.length - 1].attack
-        } | DP: ${creatures[creatures.length - 1].defence} | HP: ${
-          creatures[creatures.length - 1].health
-        }`
-      )
-    );
-    li.appendChild(liDiv);
-    liDiv.appendChild(btnBattle);
-    liDiv.appendChild(btnSacrifice);
-    btnBattle.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedAdventureLoop(${id})" > Send to Battle </button>`;
-    btnSacrifice.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="killCreature(${id})" > Sacrifice Creature</button>`;
-    li.id = `creatureComponent${id}`;
-    creaturesList.appendChild(li);
+        //Create creature DOM elements
+        var li = document.createElement("li");
+        var liDiv = document.createElement("div");
+        var btnBattle = document.createElement("BUTTON");
+        var btnSacrifice = document.createElement("BUTTON");
+        li.appendChild(
+          document.createTextNode(
+            ` ${creatures[creatures.length - 1].name} - AP: ${
+              creatures[creatures.length - 1].attack
+            } | DP: ${creatures[creatures.length - 1].defence} | HP: ${
+              creatures[creatures.length - 1].health
+            }`
+          )
+        );
+        li.appendChild(liDiv);
+        liDiv.appendChild(btnBattle);
+        liDiv.appendChild(btnSacrifice);
+        btnBattle.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedAdventureLoop(${id})" > Send to Battle </button>`;
+        btnSacrifice.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="killCreature(${id})" > Sacrifice Creature</button>`;
+        li.id = `creatureComponent${id}`;
+        creaturesList.appendChild(li);
 
-    //Story unlock for creature
-    if (storyUnlocks.creature == false) {
-      addMessageToLog(
-        "firstCreature",
-        "You kind of smoosh the energy from the universe together. It creates a grotesque creature you feel immediate sympathy for. ",
-        "logArea",
-        1
-      );
-      storyUnlocks.creature = true;
-    }
+        //Story unlock for creature
+        if (storyUnlocks.creature == false) {
+          addMessageToLog(
+            "firstCreature",
+            "You kind of smoosh the energy from the universe together. It creates a grotesque creature you feel immediate sympathy for. ",
+            "logArea",
+            1
+          );
+          storyUnlocks.creature = true;
+        }
 
-    //Update individual counts and run global updateCounts
-    id++;
-    energy -= 25;
-    creatureCount++;
-    updateCounts();
+        //Update individual counts and run global updateCounts
+        id++;
+        energy -= cost;
+        creatureCount++;
+        updateCounts();
+      }
+      break;
+    default:
+      break;
   }
 }
 
@@ -459,12 +474,12 @@ function updateBattleSummary(creatureObject) {
   } Gold: ${creatureObject.reward} </p>`;
 }
 
-function pushNewUpgradeToScreen(upgrade, message, cost) {
+function pushNewUpgradeToScreen(upgrade, message, cost, resource) {
   var btn = document.createElement("BUTTON");
   purchasePanelList.appendChild(btn);
-  btn.outerHTML = `<button onclick="clickedPurchase('${upgrade}')"
+  btn.outerHTML = `<button onclick="clickedPurchase('${upgrade}',${cost}, '${resource}')"
     class="button list-item"
     id="buy${upgrade}">
-    ${message}: ${cost} Gold
+    ${message}: ${cost} ${resource}
   </button>`;
 }
