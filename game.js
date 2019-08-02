@@ -22,10 +22,14 @@ let storyUnlocks = {
   creature: false
 };
 
-upgradeUnlocks = {
+let upgradeUnlocks = {
   swordOne: false,
   shieldOne: false,
   transmuteStone: false
+};
+
+let buildingUnlocks = {
+  bed: false
 };
 
 //Creature's battle stats
@@ -41,7 +45,7 @@ let battleStats = {
 };
 
 //Pull out some common variables
-let { energy, creatures, gold, stone, creatureCount } = data;
+let { energy, gold, stone, creatures, maxCreatures, creatureCount } = data;
 let {
   minAttack,
   maxAttack,
@@ -185,6 +189,7 @@ addMessageToLog(
   "logArea",
   1
 );
+
 //Main game loop
 var gameTimer = setInterval(function() {
   updateCounts();
@@ -229,7 +234,8 @@ function gatherStone() {
 
 //Check Available Unlocks (Called when Energy is being gathered)
 function checkAvailableUnlocks(e) {
-  if (e > 5 && storyUnlocks.five == false) {
+  //STORY UNLOCKS
+  if (energy > 5 && storyUnlocks.five == false) {
     purchasePanel.classList.remove("hidden");
     addMessageToLog(
       "knowledgeRegaining",
@@ -239,7 +245,7 @@ function checkAvailableUnlocks(e) {
     );
     storyUnlocks.five = true;
   }
-  if (e > 15 && storyUnlocks.fifteen == false) {
+  if (energy > 15 && storyUnlocks.fifteen == false) {
     pushNewUpgradeToScreen("creature", "Summon Creature", 25, "Energy");
     addMessageToLog(
       "rememberMinions",
@@ -249,6 +255,18 @@ function checkAvailableUnlocks(e) {
     );
     storyUnlocks.fifteen = true;
   }
+  //BUILDING UNLOCKS
+  if (stone > 25 && buildingUnlocks.bed == false) {
+    pushNewUpgradeToScreen("bed", "Build a new bed", 100, "Stone");
+    addMessageToLog(
+      "firstBed",
+      "You think you can use this stone to build a home for your minions.",
+      "logArea",
+      1
+    );
+    buildingUnlocks.bed = true;
+  }
+  //EQUIPMENT UNLOCKS
   if (data.totalBattlesWon > 3 && upgradeUnlocks.swordOne == false) {
     pushNewUpgradeToScreen("sword", "Buy Sword (A+3)", 500, "Gold");
     upgradeUnlocks.swordOne = true;
@@ -257,6 +275,8 @@ function checkAvailableUnlocks(e) {
     pushNewUpgradeToScreen("shield", "Buy Shield (D+3)", 500, "Gold");
     upgradeUnlocks.shieldOne = true;
   }
+
+  //SCROLL UNLOCKS
   if (data.totalBattlesWon > 5 && upgradeUnlocks.transmuteStone == false) {
     pushNewUpgradeToScreen("stoneScroll", "Study Scroll", 250, "Energy");
     upgradeUnlocks.transmuteStone = true;
@@ -266,6 +286,7 @@ function checkAvailableUnlocks(e) {
 //Trying to purchase something
 function clickedPurchase(unit, cost) {
   switch (unit) {
+    //EQUIPMENT
     case "sword":
       if (gold >= cost) {
         gold -= cost;
@@ -282,6 +303,7 @@ function clickedPurchase(unit, cost) {
         maxDefence += 3;
       }
       break;
+    //SCROLLS
     case "stoneScroll":
       if (energy >= cost) {
         energy -= cost;
@@ -289,6 +311,15 @@ function clickedPurchase(unit, cost) {
         stoneButton.classList.remove("hidden");
       }
       break;
+    //BUILDINGS
+    case "bed":
+      if (stone >= cost) {
+        stone -= cost;
+        maxCreatures++;
+        console.log("Bought Bed");
+      }
+      break;
+    //CREATURE
     case "creature":
       if (energy >= cost && creatureCount < data.maxCreatures) {
         //Create creature
