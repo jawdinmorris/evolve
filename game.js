@@ -33,6 +33,8 @@ let buildingUnlocks = {
   bed: false
 };
 
+var save = {};
+
 //Creature's battle stats
 let battleStats = {
   minAttack: 1,
@@ -621,4 +623,41 @@ function updateCreatureToolTip() {
       "data-tooltip",
       `AP: ${minAttack} - ${maxAttack} | DP: ${minDefence} - ${maxDefence} | HP ${health}`
     );
+}
+
+function saveGame() {
+  let playerStats = {
+    minAttack: minAttack,
+    maxAttack: maxAttack,
+    minDefence: minDefence,
+    maxDefence: maxDefence,
+    health: health,
+    energy: energy,
+    gold: gold,
+    stone: stone,
+    maxCreatures: maxCreatures,
+    creatureCount: creatureCount
+  };
+  save = {
+    state,
+    playerStats,
+    creatures,
+    storyUnlocks,
+    upgradeUnlocks,
+    buildingUnlocks
+  };
+
+  localStorage.setItem("save", JSON.stringify(save));
+}
+
+function loadGame() {
+  var savegame = JSON.parse(localStorage.getItem("save"));
+  if (typeof savegame.state !== undefined) state = savegame.state;
+  if (typeof savegame.playerStats !== undefined) state = savegame.playerStats;
+  if (typeof savegame.creatures !== undefined) state = savegame.creatures;
+  if (typeof savegame.storyUnlocks !== undefined) state = savegame.storyUnlocks;
+  if (typeof savegame.upgradeUnlocks !== undefined)
+    state = savegame.upgradeUnlocks;
+  if (typeof savegame.buildingUnlocks !== undefined)
+    state = savegame.buildingUnlocks;
 }
