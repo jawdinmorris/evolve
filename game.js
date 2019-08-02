@@ -247,7 +247,13 @@ function checkAvailableUnlocks() {
     storyUnlocks.fiveEnergy = true;
   }
   if (energy > 15 && storyUnlocks.fifteenEnergy == false) {
-    pushNewUpgradeToScreen("creature", "Summon Creature", 25, "Energy");
+    pushNewUpgradeToScreen(
+      "creature",
+      "Summon Creature",
+      25,
+      "Energy",
+      `AP: ${minAttack} - ${maxAttack} | DP: ${minDefence} - ${maxDefence} | HP ${health}`
+    );
     addMessageToLog(
       "rememberMinions",
       "You remember you used to have minions.",
@@ -267,7 +273,13 @@ function checkAvailableUnlocks() {
   }
   //BUILDING UNLOCKS
   if (stone > 25 && buildingUnlocks.bed == false) {
-    pushNewUpgradeToScreen("bed", "Build a new bed", 100, "Stone");
+    pushNewUpgradeToScreen(
+      "bed",
+      "Bed",
+      100,
+      "Stone",
+      "Allows room for one more creature"
+    );
     addMessageToLog(
       "firstBed",
       "You think you can use this stone to build a home for your minions.",
@@ -278,17 +290,35 @@ function checkAvailableUnlocks() {
   }
   //EQUIPMENT UNLOCKS
   if (data.totalBattlesWon > 3 && upgradeUnlocks.swordOne == false) {
-    pushNewUpgradeToScreen("sword", "Buy Sword (A+3)", 500, "Gold");
+    pushNewUpgradeToScreen(
+      "sword",
+      "Buy Sword",
+      500,
+      "Gold",
+      "Add 3 to Min and Max Attack"
+    );
     upgradeUnlocks.swordOne = true;
   }
   if (data.totalBattlesWon > 3 && upgradeUnlocks.shieldOne == false) {
-    pushNewUpgradeToScreen("shield", "Buy Shield (D+3)", 500, "Gold");
+    pushNewUpgradeToScreen(
+      "shield",
+      "Buy Shield",
+      500,
+      "Gold",
+      "Add 3 to Min And Max Defence"
+    );
     upgradeUnlocks.shieldOne = true;
   }
 
   //SCROLL UNLOCKS
   if (data.totalBattlesWon > 5 && upgradeUnlocks.transmuteStone == false) {
-    pushNewUpgradeToScreen("stoneScroll", "Study Scroll", 250, "Energy");
+    pushNewUpgradeToScreen(
+      "stoneScroll",
+      "Study Scroll",
+      250,
+      "Energy",
+      "??????"
+    );
     upgradeUnlocks.transmuteStone = true;
   }
 }
@@ -300,17 +330,17 @@ function clickedPurchase(unit, cost) {
     case "sword":
       if (gold >= cost) {
         gold -= cost;
-        console.log("Purchased Sword");
         minAttack += 1;
         maxAttack += 3;
+        updateCreatureToolTip();
       }
       break;
     case "shield":
       if (gold >= cost) {
         gold -= cost;
-        console.log("Purchased Shield");
         minDefence += 1;
         maxDefence += 3;
+        updateCreatureToolTip();
       }
       break;
     //SCROLLS
@@ -319,6 +349,12 @@ function clickedPurchase(unit, cost) {
         energy -= cost;
         document.getElementById("buystoneScroll").remove();
         stoneButton.classList.remove("hidden");
+        addMessageToLog(
+          "transmutedStone",
+          "You study the scroll and figure out how to channel your efforts to gather stone instead",
+          "logArea",
+          1
+        );
       }
       break;
     //BUILDINGS
@@ -568,12 +604,21 @@ function updateBattleSummary(creatureObject) {
   } Gold: ${creatureObject.reward} </p>`;
 }
 
-function pushNewUpgradeToScreen(upgrade, message, cost, resource) {
+function pushNewUpgradeToScreen(upgrade, message, cost, resource, toolTip) {
   var btn = document.createElement("BUTTON");
   purchasePanelList.appendChild(btn);
   btn.outerHTML = `<button onclick="clickedPurchase('${upgrade}',${cost}, '${resource}')"
-    class="button list-item"
-    id="buy${upgrade}">
-    ${message}: ${cost} ${resource}
+    class="button list-item tooltip is-tooltip-right"
+    id="buy${upgrade}" data-tooltip="${toolTip}">
+    ${message}: ${cost} ${resource} 
   </button>`;
+}
+
+function updateCreatureToolTip() {
+  document
+    .getElementById("buycreature")
+    .setAttribute(
+      "data-tooltip",
+      `AP: ${minAttack} - ${maxAttack} | DP: ${minDefence} - ${maxDefence} | HP ${health}`
+    );
 }
