@@ -193,7 +193,7 @@ addMessageToLog(
 //Main game loop
 var gameTimer = setInterval(function() {
   updateCounts();
-  checkAvailableUnlocks(energy);
+  checkAvailableUnlocks();
   if (state.gatheringStone == true) {
     stone++;
     stoneButton.innerText = `Gathering 1 Stone P/Second`;
@@ -233,7 +233,7 @@ function gatherStone() {
 }
 
 //Check Available Unlocks (Called when Energy is being gathered)
-function checkAvailableUnlocks(e) {
+function checkAvailableUnlocks() {
   //STORY UNLOCKS
   if (energy > 5 && storyUnlocks.five == false) {
     purchasePanel.classList.remove("hidden");
@@ -321,7 +321,7 @@ function clickedPurchase(unit, cost) {
       break;
     //CREATURE
     case "creature":
-      if (energy >= cost && creatureCount < data.maxCreatures) {
+      if (energy >= cost && creatureCount < maxCreatures) {
         //Create creature
         creatures.push({
           id: id,
@@ -385,9 +385,7 @@ function clickedPurchase(unit, cost) {
 //Easily called update counts
 function updateCounts() {
   energyLabel.innerText = `Energy: ${energy}`;
-  creaturesLabel.innerText = `Creatures: ${creatureCount} / ${
-    data.maxCreatures
-  }`;
+  creaturesLabel.innerText = `Creatures: ${creatureCount} / ${maxCreatures}`;
   goldLabel.innerText = `Gold: ${gold}`;
   stoneLabel.innerText = `Stone: ${stone}`;
 }
