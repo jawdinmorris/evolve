@@ -295,7 +295,7 @@ function checkAvailableUnlocks() {
       "Buy Sword",
       500,
       "Gold",
-      "Add 3 to Min and Max Attack"
+      "Add 1 to Min Attack and 3 to Min Defence"
     );
     upgradeUnlocks.swordOne = true;
   }
@@ -305,7 +305,7 @@ function checkAvailableUnlocks() {
       "Buy Shield",
       500,
       "Gold",
-      "Add 3 to Min And Max Defence"
+      "Add 1 to Min Defence and 3 to Max Defence"
     );
     upgradeUnlocks.shieldOne = true;
   }
