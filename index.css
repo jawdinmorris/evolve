@@ -15,6 +15,21 @@ div {
   bottom: 10px;
 }
 
+#goldContainer {
+  height: 100%;
+  min-width: 100%;
+  max-width: 100%;
+}
+#energyContainer {
+  height: 100%;
+  min-width: 100%;
+  max-width: 100%;
+}
+
+#nullContainer {
+  height: 100%;
+  max-width: 50%;
+}
 .flashit {
   color: black;
   -webkit-animation: flash linear 1s infinite;

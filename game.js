@@ -2,6 +2,7 @@
 let data = {
   energy: 0,
   gold: 0,
+  stone: 0,
   creatures: [],
   creatureCount: 0,
   maxCreatures: 3,
@@ -40,7 +41,7 @@ let battleStats = {
 };
 
 //Pull out some common variables
-let { energy, creatures, gold, creatureCount } = data;
+let { energy, creatures, gold, stone, creatureCount } = data;
 let {
   minAttack,
   maxAttack,
@@ -163,6 +164,7 @@ var energyLabel = document.getElementById("energyLabel");
 var energyButton = document.getElementById("energyButton");
 var goldLabel = document.getElementById("goldLabel");
 var stoneContainer = document.getElementById("stoneContainer");
+var stoneButton = document.getElementById("stoneButton");
 
 //Purchasing DOM
 var purchasePanel = document.getElementById("purchasePanel");
@@ -183,21 +185,45 @@ addMessageToLog(
   "logArea",
   1
 );
+//Main game loop
+var gameTimer = setInterval(function() {
+  updateCounts();
+  checkAvailableUnlocks(energy);
+  if (state.gatheringStone == true) {
+    stone++;
+    stoneButton.innerText = `Gathering 1 Stone P/Second`;
+    stoneButton.classList.add("is-success");
+  } else {
+    stoneButton.innerText = `Gather Stone`;
+    stoneButton.classList.remove("is-success");
+  }
+  if (state.gatheringEnergy == true) {
+    energy++;
+    energyButton.innerText = `Gathering 1 Energy P/Second`;
+    energyButton.classList.add("is-success");
+  } else {
+    energyButton.innerText = `Gather Energy`;
+    energyButton.classList.remove("is-success");
+  }
+}, 100);
 
 //Clicked Gather Energy Button
 function gatherEnergy() {
-  state.gatheringEnergy = !state.gatheringEnergy;
-  let gatherEnergyTimer;
-  if (state.gatheringEnergy == true) {
-    gatherEnergyTimer = setInterval(function() {
-      energy++;
-      updateCounts();
-      checkAvailableUnlocks(energy);
-    }, 100);
-    energyButton.innerText = "Gathering Energy";
+  if (state.gatheringEnergy == false) {
+    state.gatheringEnergy = true;
+    state.gatheringStone = false;
   } else {
-    clearInterval(gatherEnergyTimer);
-    energyButton.innerText = "Gather Energy";
+    state.gatheringEnergy = false;
+  }
+}
+
+//Click gather Stone Button
+function gatherStone() {
+  if (state.gatheringStone == false) {
+    state.gatheringStone = true;
+    state.gatheringEnergy = false;
+  } else {
+    state.gatheringStone = false;
   }
 }
 
@@ -260,10 +286,9 @@ function clickedPurchase(unit, cost) {
       if (energy >= cost) {
         energy -= cost;
         document.getElementById("buystoneScroll").remove();
-        var stoneBtn = document.createElement("BUTTON");
-        stoneContainer.appendChild(stoneBtn);
-        stoneBtn.outerHTML = `<button id="stoneButton" class="button" onclick="gatherStone" > Gather Stone </button>`;
+        stoneButton.classList.remove("hidden");
       }
+      break;
     case "creature":
       if (energy >= cost && creatureCount < data.maxCreatures) {
         //Create creature
@@ -333,6 +358,7 @@ function updateCounts() {
     data.maxCreatures
   }`;
   goldLabel.innerText = `Gold: ${gold}`;
+  stoneLabel.innerText = `Stone: ${stone}`;
 }
 
 //Started Adventure loop
