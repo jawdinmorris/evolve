@@ -5,7 +5,7 @@ let data = {
   stone: 0,
   creatures: [],
   creatureCount: 0,
-  maxCreatures: 3,
+  maxCreatures: 2,
   totalBattlesWon: 0
 };
 
@@ -17,8 +17,9 @@ let state = {
 
 //Unlocks in story based on energy count (Maybe Refactor?)
 let storyUnlocks = {
-  five: false,
-  fifteen: false,
+  fiveEnergy: false,
+  fifteenEnergy: false,
+  oneGold: false,
   creature: false
 };
 
@@ -235,7 +236,7 @@ function gatherStone() {
 //Check Available Unlocks (Called when Energy is being gathered)
 function checkAvailableUnlocks() {
   //STORY UNLOCKS
-  if (energy > 5 && storyUnlocks.five == false) {
+  if (energy > 5 && storyUnlocks.fiveEnergy == false) {
     purchasePanel.classList.remove("hidden");
     addMessageToLog(
       "knowledgeRegaining",
@@ -243,9 +244,9 @@ function checkAvailableUnlocks() {
       "logArea",
       1
     );
-    storyUnlocks.five = true;
+    storyUnlocks.fiveEnergy = true;
   }
-  if (energy > 15 && storyUnlocks.fifteen == false) {
+  if (energy > 15 && storyUnlocks.fifteenEnergy == false) {
     pushNewUpgradeToScreen("creature", "Summon Creature", 25, "Energy");
     addMessageToLog(
       "rememberMinions",
@@ -253,7 +254,16 @@ function checkAvailableUnlocks() {
       "logArea",
       1
     );
-    storyUnlocks.fifteen = true;
+    storyUnlocks.fifteenEnergy = true;
+  }
+  if (gold > 1 && storyUnlocks.oneGold == false) {
+    addMessageToLog(
+      "oneGold",
+      "You're unsure what to do with this gold right now. But surely it'll be useful.",
+      "logArea",
+      1
+    );
+    storyUnlocks.oneGold = true;
   }
   //BUILDING UNLOCKS
   if (stone > 25 && buildingUnlocks.bed == false) {
