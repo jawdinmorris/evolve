@@ -21,7 +21,8 @@ let storyUnlocks = {
 };
 
 upgradeUnlocks = {
-  swordOne: false
+  swordOne: false,
+  shieldOne: false
 };
 //Creature's battle stats
 let battleStats = {
@@ -219,8 +220,12 @@ function checkAvailableUnlocks(e) {
     storyUnlocks.fifteen = true;
   }
   if (data.totalBattlesWon > 3 && upgradeUnlocks.swordOne == false) {
-    pushNewUpgradeToScreen("sword", "Buy Sword", 10, "Gold");
+    pushNewUpgradeToScreen("sword", "Buy Sword (A+3)", 500, "Gold");
     upgradeUnlocks.swordOne = true;
+  }
+  if (data.totalBattlesWon > 3 && upgradeUnlocks.shieldOne == false) {
+    pushNewUpgradeToScreen("shield", "Buy Shield (D+3)", 500, "Gold");
+    upgradeUnlocks.shieldOne = true;
   }
 }
 
@@ -233,6 +238,14 @@ function clickedPurchase(unit, cost) {
         console.log("Purchased Sword");
         minAttack += 1;
         maxAttack += 3;
+      }
+      break;
+    case "shield":
+      if (gold >= cost) {
+        gold -= cost;
+        console.log("Purchased Shield");
+        minDefence += 1;
+        maxDefence += 3;
       }
       break;
     case "creature":
