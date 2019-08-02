@@ -27,7 +27,10 @@
                 <div class="rows">
                   <div class="columns">
                     <div class="column">
-                      <div class="row box has-text-centered">
+                      <div
+                        id="energyContainer"
+                        class="row box has-text-centered"
+                      >
                         <div id="energyLabel">Energy: 0</div>
                         <button
                           onclick="gatherEnergy()"
@@ -39,12 +42,19 @@
                       </div>
                     </div>
                     <div class="column">
-                      <div class="row box" id="goldLabel">Gold: 0</div>
+                      <div id="goldContainer" class="row box has-text-centered">
+                        <div id="goldLabel">Gold: 0</div>
+                      </div>
                     </div>
                   </div>
                   <div class="columns">
                     <div class="column">
-                      <div class="row box">Stone: 0</div>
+                      <div
+                        id="stoneContainer"
+                        class="row box has-text-centered"
+                      >
+                        <div id="stoneLabel">Stone: 0</div>
+                      </div>
                     </div>
                     <div class="column">
                       <div class="row box">Null</div>

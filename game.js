@@ -10,7 +10,8 @@ let data = {
 
 //Game State
 let state = {
-  gatheringEnergy: false
+  gatheringEnergy: false,
+  gatheringStone: false
 };
 
 //Unlocks in story based on energy count (Maybe Refactor?)
@@ -22,8 +23,10 @@ let storyUnlocks = {
 
 upgradeUnlocks = {
   swordOne: false,
-  shieldOne: false
+  shieldOne: false,
+  transmuteStone: false
 };
+
 //Creature's battle stats
 let battleStats = {
   minAttack: 1,
@@ -159,6 +162,7 @@ const names = [
 var energyLabel = document.getElementById("energyLabel");
 var energyButton = document.getElementById("energyButton");
 var goldLabel = document.getElementById("goldLabel");
+var stoneContainer = document.getElementById("stoneContainer");
 
 //Purchasing DOM
 var purchasePanel = document.getElementById("purchasePanel");
@@ -227,6 +231,10 @@ function checkAvailableUnlocks(e) {
     pushNewUpgradeToScreen("shield", "Buy Shield (D+3)", 500, "Gold");
     upgradeUnlocks.shieldOne = true;
   }
+  if (data.totalBattlesWon > 5 && upgradeUnlocks.transmuteStone == false) {
+    pushNewUpgradeToScreen("stoneScroll", "Study Scroll", 250, "Energy");
+    upgradeUnlocks.transmuteStone = true;
+  }
 }
 
 //Trying to purchase something
@@ -248,6 +256,14 @@ function clickedPurchase(unit, cost) {
         maxDefence += 3;
       }
       break;
+    case "stoneScroll":
+      if (energy >= cost) {
+        energy -= cost;
+        document.getElementById("buystoneScroll").remove();
+        var stoneBtn = document.createElement("BUTTON");
+        stoneContainer.appendChild(stoneBtn);
+        stoneBtn.outerHTML = `<button id="stoneButton" class="button" onclick="gatherStone" > Gather Stone </button>`;
+      }
     case "creature":
       if (energy >= cost && creatureCount < data.maxCreatures) {
         //Create creature
