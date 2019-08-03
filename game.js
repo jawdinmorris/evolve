@@ -626,6 +626,7 @@ function updateCreatureToolTip() {
 }
 
 function saveGame() {
+  console.log("saving game");
   let playerStats = {
     minAttack: minAttack,
     maxAttack: maxAttack,
@@ -646,11 +647,12 @@ function saveGame() {
     upgradeUnlocks,
     buildingUnlocks
   };
-
+  console.log(save);
   localStorage.setItem("save", JSON.stringify(save));
 }
 
 function loadGame() {
+  console.log("Loading Save");
   var savegame = JSON.parse(localStorage.getItem("save"));
   if (typeof savegame.state !== undefined) state = savegame.state;
   if (typeof savegame.playerStats !== undefined) state = savegame.playerStats;
@@ -660,4 +662,5 @@ function loadGame() {
     state = savegame.upgradeUnlocks;
   if (typeof savegame.buildingUnlocks !== undefined)
     state = savegame.buildingUnlocks;
+  console.log(savegame);
 }
