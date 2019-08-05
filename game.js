@@ -575,11 +575,7 @@ function killCreature(e) {
 function addMessageToLog(id, message, element, flashTimer) {
   let elementArea = document.getElementById(element);
   elementArea.innerHTML =
-    elementArea.innerHTML +
-    new Date().toLocaleTimeString() +
-    `<p id="${id}">` +
-    String(message) +
-    "<p></br>";
+    elementArea.innerHTML + `<p id="${id}">` + String(message) + "<p></br>";
   if (flashTimer > 0) {
     let targetElement = document.getElementById(id);
     targetElement.classList.add("flashit");
@@ -639,28 +635,81 @@ function saveGame() {
     maxCreatures: maxCreatures,
     creatureCount: creatureCount
   };
+
   save = {
-    state,
-    playerStats,
-    creatures,
-    storyUnlocks,
-    upgradeUnlocks,
-    buildingUnlocks
+    state: state,
+    playerStats: playerStats,
+    creatures: creatures
   };
-  console.log(save);
-  localStorage.setItem("save", JSON.stringify(save));
+  localStorage.setItem("save", `${JSON.stringify(save)}`);
+  console.log(localStorage.getItem("save"));
 }
 
 function loadGame() {
   console.log("Loading Save");
   var savegame = JSON.parse(localStorage.getItem("save"));
-  if (typeof savegame.state !== undefined) state = savegame.state;
-  if (typeof savegame.playerStats !== undefined) state = savegame.playerStats;
-  if (typeof savegame.creatures !== undefined) state = savegame.creatures;
-  if (typeof savegame.storyUnlocks !== undefined) state = savegame.storyUnlocks;
-  if (typeof savegame.upgradeUnlocks !== undefined)
-    state = savegame.upgradeUnlocks;
-  if (typeof savegame.buildingUnlocks !== undefined)
-    state = savegame.buildingUnlocks;
+
   console.log(savegame);
+  if (typeof savegame.state !== undefined) state = savegame.state;
+  if (typeof savegame.playerStats !== undefined)
+    playerStats = savegame.playerStats;
+  if (typeof savegame.creatures !== undefined) creatures = savegame.creatures;
+  // if (typeof savegame.storyUnlocks !== undefined)
+  //   storyUnlocks = savegame.storyUnlocks;
+  // if (typeof savegame.upgradeUnlocks !== undefined)
+  //   upgradeUnlocks = savegame.upgradeUnlocks;
+  // if (typeof savegame.buildingUnlocks !== undefined)
+  //   buildingUnlocks = savegame.buildingUnlocks;
+  state.gatheringStone = savegame.state.gatheringStone;
+  energy = savegame.playerStats.energy;
+  updateCounts();
+}
+
+function deleteGame() {
+  console.log("Deleting Save");
+  let playerStats = {
+    minAttack: 1,
+    maxAttack: 3,
+    minDefence: 1,
+    maxDefence: 3,
+    health: 20,
+    energy: 0,
+    gold: 0,
+    stone: 0,
+    maxCreatures: 2,
+    creatureCount: 0
+  };
+  let state = {
+    gatheringEnergy: false,
+    gatheringStone: false
+  };
+
+  //Unlocks in story based on energy count (Maybe Refactor?)
+  let storyUnlocks = {
+    fiveEnergy: false,
+    fifteenEnergy: false,
+    oneGold: false,
+    creature: false
+  };
+
+  let upgradeUnlocks = {
+    swordOne: false,
+    shieldOne: false,
+    transmuteStone: false
+  };
+
+  let buildingUnlocks = {
+    bed: false
+  };
+  save = {
+    state: state,
+    playerStats: playerStats,
+    creatures: creatures,
+    storyUnlocks: storyUnlocks,
+    upgradeUnlocks: upgradeUnlocks,
+    buildingUnlocks: buildingUnlocks
+  };
+  localStorage.setItem("save", `${JSON.stringify(save)}`);
+  console.log(localStorage.getItem("save"));
+  location.reload();
 }
