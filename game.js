@@ -385,7 +385,7 @@ function clickedPurchase(unit, cost) {
           reward: 0
         });
 
-        //Create creature DOM elements
+        //Create creature DOM elements (EXPAND OUT INTO OWN FUNCTION FOR SAVE LOADING)
         var li = document.createElement("li");
         var liDiv = document.createElement("div");
         var btnBattle = document.createElement("BUTTON");
