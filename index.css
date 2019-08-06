@@ -31,6 +31,11 @@ div {
   max-width: 50%;
 }
 
+.creatureCard {
+  padding: 5px;
+  margin: 5px auto 5px auto;
+  border: 1px green solid;
+}
 .flashit {
   color: black;
   -webkit-animation: flash linear 1s infinite;

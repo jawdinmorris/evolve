@@ -370,42 +370,8 @@ function clickedPurchase(unit, cost) {
     //CREATURE
     case "creature":
       if (energy >= cost && creatureCount < maxCreatures) {
+        createCreature();
         //Create creature
-        creatures.push({
-          id: id,
-          name: names[Math.floor(Math.random() * names.length)],
-          attack: Math.floor(
-            Math.random() * (maxAttack - minAttack) + minAttack
-          ),
-          defence: Math.floor(
-            Math.random() * (maxDefence - minDefence) + minDefence
-          ),
-          health: health,
-          battlesWon: 0,
-          reward: 0
-        });
-
-        //Create creature DOM elements (EXPAND OUT INTO OWN FUNCTION FOR SAVE LOADING)
-        var li = document.createElement("li");
-        var liDiv = document.createElement("div");
-        var btnBattle = document.createElement("BUTTON");
-        var btnSacrifice = document.createElement("BUTTON");
-        li.appendChild(
-          document.createTextNode(
-            ` ${creatures[creatures.length - 1].name} - AP: ${
-              creatures[creatures.length - 1].attack
-            } | DP: ${creatures[creatures.length - 1].defence} | HP: ${
-              creatures[creatures.length - 1].health
-            }`
-          )
-        );
-        li.appendChild(liDiv);
-        liDiv.appendChild(btnBattle);
-        liDiv.appendChild(btnSacrifice);
-        btnBattle.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="startedAdventureLoop(${id})" > Send to Battle </button>`;
-        btnSacrifice.outerHTML = `<button id="creatureComponentButton${id}" class="button is-small battle-button" onclick="killCreature(${id})" > Sacrifice Creature</button>`;
-        li.id = `creatureComponent${id}`;
-        creaturesList.appendChild(li);
 
         //Story unlock for creature
         if (storyUnlocks.creature == false) {
@@ -440,12 +406,21 @@ function updateCounts() {
 
 //Started Adventure loop
 function startedAdventureLoop(e) {
-  creatureObject = creatures[e];
+  var battleCreatureIndex = creatures.findIndex(function(o) {
+    return o.id === e;
+  });
+  let creatureObject = creatures[battleCreatureIndex];
+  console.log(creatureObject);
   updateBattleSummary(creatureObject);
   //Make sure they're not already battling
   if (battling == false) {
     //Remove from DOM and allow more room
-    killCreature(e);
+    //TURN CREATURE INTO BATTLE MODE
+    console.log(e);
+    console.log(document.getElementById(`creatureComponent${e}`).firstChild);
+    document.getElementById(
+      `creatureComponent${e}`
+    ).childNodes[1].innerHTML = `<p class = "has-text-centered"> Battling </p>`;
     battling = true;
     addMessageToLog(
       "walkAimlessly",
@@ -466,15 +441,16 @@ function startedAdventureLoop(e) {
       if (time < 0.001) {
         clearInterval(wanderInterval);
         // HERE you would randomise the action being called (Fighting, gathering etc.)
-        battleAction(e);
+        battleAction(creatureObject);
       }
     }, 1000);
   }
 }
 
-function battleAction(e) {
+function battleAction(creatureObject) {
   //Setup fight
-  var battleCreature = creatures[e];
+  let battleCreature = creatureObject;
+  console.log(battleCreature);
   var enemy = {
     attack: 1 + battleCreature.battlesWon,
     defence: 0 + battleCreature.battlesWon,
@@ -534,8 +510,8 @@ function battleAction(e) {
     battling = false;
     battleCreature.reward =
       battleCreature.reward + battleCreature.battlesWon * 100;
-    updateBattleSummary(creatureObject);
-    setTimeout(startedAdventureLoop(e), 3000);
+    updateBattleSummary(battleCreature);
+    setTimeout(startedAdventureLoop(creatureObject.id), 3000);
   } else {
     addMessageToLog(
       "lostToEnemy",
@@ -556,9 +532,10 @@ function battleAction(e) {
       0
     );
     timer.innerHTML = "DEFEATED";
-    updateBattleSummary(creatureObject);
+    updateBattleSummary(battleCreature);
     //Send rewards home and kill creature
     gold = gold + battleCreature.reward;
+    killCreature(creatureObject.id);
     battling = false;
   }
 }
@@ -566,7 +543,13 @@ function battleAction(e) {
 //Kill creature
 function killCreature(e) {
   if (document.getElementById(`creatureComponent${e}`)) {
+    //remove DOM element
     document.getElementById(`creatureComponent${e}`).remove();
+    var index = creatures.findIndex(function(o) {
+      return o.id === e;
+    });
+    if (index !== -1) creatures.splice(index, 1);
+    console.log(creatures);
   }
   creatureCount = document.getElementById("creaturesList").childElementCount;
 }
@@ -621,6 +604,50 @@ function updateCreatureToolTip() {
     );
 }
 
+function createCreature() {
+  creatures.push({
+    id: id,
+    name: names[Math.floor(Math.random() * names.length)],
+    attack: Math.floor(Math.random() * (maxAttack - minAttack) + minAttack),
+    defence: Math.floor(Math.random() * (maxDefence - minDefence) + minDefence),
+    health: health,
+    battlesWon: 0,
+    reward: 0
+  });
+  var creatingCreature = creatures[creatures.length - 1];
+  console.log(creatingCreature);
+  createCreatureDom(creatingCreature);
+}
+
+function createCreatureDom(creature) {
+  var li = document.createElement("li");
+  var liDiv = document.createElement("div");
+  li.classList.add("creatureCard");
+  var btnBattle = document.createElement("BUTTON");
+  var btnSacrifice = document.createElement("BUTTON");
+  li.appendChild(
+    document.createTextNode(
+      ` ${creature.name} - AP: ${creature.attack} | DP: ${
+        creature.defence
+      } | HP: ${creature.health}`
+    )
+  );
+  li.appendChild(liDiv);
+  liDiv.appendChild(btnBattle);
+  liDiv.appendChild(btnSacrifice);
+  btnBattle.outerHTML = `<button id="creatureComponentButton${
+    creature.id
+  }" class="button is-small battle-button" style="display: inline;" onclick="startedAdventureLoop(${
+    creature.id
+  })" > Send to Battle </button>`;
+  btnSacrifice.outerHTML = `<button id="creatureComponentButton${
+    creature.id
+  }" class="button is-small battle-button" style="display: inline;"onclick="killCreature(${
+    creature.id
+  })" > Sacrifice Creature</button>`;
+  li.id = `creatureComponent${creature.id}`;
+  creaturesList.appendChild(li);
+}
 function saveGame() {
   console.log("saving game");
   let playerStats = {
@@ -663,6 +690,7 @@ function loadGame() {
   state.gatheringStone = savegame.state.gatheringStone;
   energy = savegame.playerStats.energy;
   updateCounts();
+  loadCreatures();
 }
 
 function deleteGame() {
@@ -712,4 +740,10 @@ function deleteGame() {
   localStorage.setItem("save", `${JSON.stringify(save)}`);
   console.log(localStorage.getItem("save"));
   location.reload();
+}
+
+function loadCreatures() {
+  creatures.forEach(creature => createCreatureDom(creature));
+  creatureCount = creatures.length;
+  updateCounts();
 }
